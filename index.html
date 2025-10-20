@@ -17,24 +17,39 @@
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
   html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
-  /* vertical mobile-first container that never scrolls */
-  .app{
-    height:100vh;
-    width:100vw;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    overflow:hidden; /* no scrolling */
-    -webkit-user-select:none; user-select:none;
-    box-sizing:border-box;
-    padding:12px;
+  .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
+
+  /* floating title */
+  .title-wrap { position:relative; width:100%; display:flex; justify-content:center; pointer-events:none; margin-bottom:6px; }
+  .title {
+    font-family: 'Orbitron', monospace;
+    color:var(--neon-cyan);
+    letter-spacing:6px;
+    font-size:32px;
+    transform: translateY(0);
+    text-shadow:
+      0 0 8px rgba(0,240,255,0.75),
+      0 0 28px rgba(0,240,255,0.15);
+    opacity:1;
+    transition: transform .4s ease, opacity .35s ease;
+    font-style: italic;
+  }
+  .title.small { font-size:20px; letter-spacing:3px; color:#88faff; opacity:0.9; }
+
+  /* little streak counter under title */
+  .streak {
+    margin-top:6px;
+    color:var(--neon-cyan);
+    font-size:12px;
+    opacity:0.9;
+    text-shadow: 0 0 8px rgba(0,240,255,0.12);
+    pointer-events:none;
   }
 
   /* neon frame for game */
   .frame {
     width:min(96vw,520px);
-    height:calc(min(96vw,520px) * 1.2); /* portrait taller than wide for "vertical" feel */
+    height:calc(min(96vw,520px) * 1.2);
     max-height:92vh;
     background:#000;
     border-radius:14px;
@@ -46,9 +61,20 @@
     padding:var(--frame-pad);
     border:4px solid rgba(0,255,255,0.06);
     outline: 2px solid rgba(0,255,255,0.12);
+    overflow:hidden;
   }
+<!-- iOS Web App Settings -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gridle">
 
-  /* neon border */
+<!-- Fallback icons for iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
+
+<!-- Manifest -->
+<link rel="manifest" href="manifest.json">
   .frame::after{
     content:'';
     position:absolute;
@@ -58,103 +84,43 @@
     pointer-events:none;
   }
 
-  /* canvas centers and scales responsively */
-  canvas.game {
-    width:100%;
-    height:100%;
-    border-radius:8px;
-    background:#000;
-    display:block;
-    image-rendering: pixelated;
-  }
+  canvas.game { width:100%; height:100%; border-radius:8px; background:#000; display:block; image-rendering: pixelated; }
 
-  /* bottom controls (3 stages) */
-  .controls {
-    width:100%;
-    max-width:520px;
-    margin-top:10px;
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    align-items:center;
-  }
+  .controls { width:100%; max-width:520px; margin-top:10px; display:flex; justify-content:center; gap:12px; align-items:center; }
 
-  .button {
-    background:#000;
-    border:2px solid var(--neon-cyan);
-    color:var(--neon-cyan);
-    padding:10px 14px;
-    border-radius:10px;
-    font-weight:700;
-    min-width:160px;
-    text-align:center;
-    cursor:pointer;
-    box-shadow: 0 6px 18px rgba(0,255,255,0.06);
-  }
-  .button.ghost { background:transparent; }
+  .button { background:#000; border:2px solid var(--neon-cyan); color:var(--neon-cyan); padding:10px 14px; border-radius:10px; font-weight:700; min-width:160px; text-align:center; cursor:pointer; box-shadow: 0 6px 18px rgba(0,255,255,0.06); }
   .button.hidden{ display:none; }
 
-  /* touch control cluster */
-  .touch-controls {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    background:transparent;
-  }
-
-  .control-rect {
-    width:64px;
-    height:48px;
-    border-radius:8px;
-    background:#000;
-    border:3px solid var(--neon-cyan);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-  }
-  .control-rect .triangle{
-    width:0;height:0;border-style:solid;opacity:0.95;
-  }
+  .touch-controls { display:flex; align-items:center; gap:12px; background:transparent; }
+  .control-rect { width:64px; height:48px; border-radius:8px; background:#000; border:3px solid var(--neon-cyan); display:flex; align-items:center; justify-content:center; position:relative; }
+  .control-rect .triangle{ width:0;height:0;border-style:solid;opacity:0.95; }
   .left .triangle { border-width:12px 16px 12px 0;border-color:transparent var(--neon-cyan) transparent transparent; transform:translateX(-6px); }
   .right .triangle { border-width:12px 0 12px 16px;border-color:transparent transparent transparent var(--neon-cyan); transform:translateX(6px); }
+  .disc-button { width:56px;height:56px;border-radius:50%; border:4px solid var(--neon-cyan); display:flex;align-items:center;justify-content:center; background:#000;font-weight:900;font-size:20px; }
 
-  .disc-button {
-    width:56px;height:56px;border-radius:50%;
-    border:4px solid var(--neon-cyan);
-    display:flex;align-items:center;justify-content:center;
-    background:#000;font-weight:900;font-size:20px;
-  }
-
-  /* popup */
-  .popup {
-    position:absolute;
-    left:50%; top:50%;
-    transform:translate(-50%,-50%);
-    background:rgba(0,0,0,0.85);
-    border:3px solid var(--neon-cyan);
-    padding:20px 24px;
-    border-radius:12px;
-    text-align:center;
-    z-index:30;
-    display:none;
-    min-width:260px;
-  }
+  .popup { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.85); border:3px solid var(--neon-cyan); padding:20px 24px; border-radius:12px; text-align:center; z-index:30; display:none; min-width:260px; }
   .popup.show{ display:block; animation:pop .24s ease-out; }
   @keyframes pop { from { transform:translate(-50%,-54%) scale(.98); opacity:0 } to { transform:translate(-50%,-50%) scale(1); opacity:1 } }
-
   .popup h2{ color:var(--neon-cyan); margin:0 0 8px 0; font-size:18px; letter-spacing:1px; }
   .popup p{ margin:0; color:#cfeaff; font-size:14px; }
 
-  /* small footer */
   .meta { margin-top:8px; color:#264; font-size:12px; opacity:0.6; text-align:center; width:100%; max-width:520px; }
-  @media(min-width:900px){
-    .frame { width:520px; height:640px; }
-  }
+  @media(min-width:900px){ .frame { width:520px; height:640px; } }
+
+  /* hide title when playing */
+  .title-hidden { transform: translateY(-30px); opacity:0; pointer-events:none; }
+
 </style>
 </head>
 <body>
   <div class="app" id="app">
+    <div class="title-wrap">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div id="title" class="title">GRIDLE</div>
+        <div id="streakDisplay" class="streak" aria-live="polite">🔥 Streak: 0</div>
+      </div>
+    </div>
+
     <div class="frame" id="game-frame">
       <canvas id="game" class="game"></canvas>
 
@@ -165,55 +131,36 @@
     </div>
 
     <div class="controls" id="controls">
-      <!-- Stage 1: Play button -->
       <button id="playBtn" class="button">Play Today's Challenge</button>
 
-      <!-- Stage 2: Touch controls -->
       <div id="inGameControls" class="touch-controls hidden" aria-hidden="true">
         <div id="turnLeft" class="control-rect left" role="button" aria-label="turn left"><div class="triangle"></div></div>
         <div id="discBtn" class="disc-button" role="button" aria-label="throw disc">●</div>
         <div id="turnRight" class="control-rect right" role="button" aria-label="turn right"><div class="triangle"></div></div>
       </div>
 
-      <!-- Stage 3: Share -->
       <button id="shareBtn" class="button hidden">Share Today's Challenge</button>
     </div>
 
-    <div class="meta">Gridle — Daily Grid Challenge Central Time daily reset. Controls: Left/Right or tap arrows. Space / disc button to throw.</div>
+    <div class="meta">Gridle — Daily Grid Challenge. Central Time reset at midnight. Controls: arrows/WASD or tap/swipe. Space or circle to throw disc.</div>
   </div>
 
 <script>
 /*
- GRIDLE — single-file starter implementation.
- Deterministic daily setups -> seeded RNG using Central Time date (UTC-6/UTC-5 DST not handled here; we will use locale with timezone offset).
- Key features implemented:
-  - deterministic daily seed -> reproducible grid + bot movements
-  - single play per day saved to localStorage
-  - disc physics with wall bouncing, diagonal corner bounce
-  - bots follow deterministic movement scripts derived from RNG
-  - share by building emoji grid (⬛ 🟦 🟥)
+  GRIDLE — Updated version
+  - Floating neon title & streak display
+  - Bigger grid sizes and longer matches
+  - Smart bots (1-tile lookahead avoiding walls, own trail, and user trail)
+  - Disc spawn fixed (one cell ahead) and faster bounce physics
+  - Simplified emoji share (downsampled)
+  - Streak memory: win increments or starts; lose resets to 0
 */
 
-/* ------------------------------
-  Utilities
-------------------------------*/
+//// Utilities
+function mulberry32(a){ return function(){ var t = a += 0x6D2B79F5|0; t = Math.imul(t ^ t>>>15, t | 1); t ^= t + Math.imul(t ^ t>>>7, t | 61); return ((t ^ t>>>14) >>> 0) / 4294967296; } }
 
-// Seeded RNG (Mulberry32)
-function mulberry32(a) {
-  return function() {
-    var t = a += 0x6D2B79F5 | 0;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  }
-}
-
-// Get Central Date key (YYYY-MM-DD) based on current time converted to America/Chicago.
-// We'll compute UTC time then subtract offset for Central (UTC-6 or -5 DST).
 function getCentralDateKey(now = new Date()){
-  // Use Intl to get central offset minutes for now
   try {
-    // Create a formatter for America/Chicago and format to parts to get date in that timezone
     const df = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', year:'numeric', month:'2-digit', day:'2-digit'});
     const parts = df.formatToParts(now);
     const y = parts.find(p=>p.type==='year').value;
@@ -221,7 +168,6 @@ function getCentralDateKey(now = new Date()){
     const d = parts.find(p=>p.type==='day').value;
     return `${y}-${m}-${d}`;
   } catch(e){
-    // fallback: naive shift of -6 hours (not DST-accurate but safe fallback)
     const ms = now.getTime() + (now.getTimezoneOffset()*60000);
     const centralMs = ms - (6*60*60000);
     const c = new Date(centralMs);
@@ -229,422 +175,329 @@ function getCentralDateKey(now = new Date()){
   }
 }
 
-/* ------------------------------
-  Daily deterministic setup generator
-  - We will have 360 distinct seeds; index = dayIndex % 360
-  - The generator uses the day's seed to produce:
-     gridSize (square NxN), number of bots, bot initial positions/directions, movement scripts (array of directions per tick)
-------------------------------*/
+function dateKeyToDate(dateKey){
+  const [y,m,d] = dateKey.split('-').map(s=>parseInt(s,10));
+  return new Date(Date.UTC(y, m-1, d));
+}
 
+//// Daily setup (deterministic)
 function dailySeedFromDateKey(dateKey){
-  // dateKey like 2025-10-20
-  // derive numeric seed from date and compress into 32-bit
   const parts = dateKey.split('-').map(s=>parseInt(s,10));
-  const dayOfYear = (() => {
-    const d = new Date(parts[0], parts[1]-1, parts[2]);
-    const start = new Date(parts[0],0,0);
-    const diff = d - start;
-    return Math.floor(diff / (1000*60*60*24));
-  })();
-  // map to 0..359
+  const d = new Date(parts[0], parts[1]-1, parts[2]);
+  const start = new Date(parts[0],0,0);
+  const dayOfYear = Math.floor((d - start)/(1000*60*60*24));
   const index360 = dayOfYear % 360;
-  const base = parts[0] * 1000 + index360;
-  return (base * 2654435761) >>> 0; // churn to decent seed
+  const base = parts[0]*1000 + index360;
+  return (base * 2654435761) >>> 0;
 }
 
 function makeDailySetup(dateKey){
   const seed = dailySeedFromDateKey(dateKey);
   const rng = mulberry32(seed);
-  // grid sizes we like (small->bigger)
-  const sizes = [12,14,16,18,20,22,24]; // square N x N
+  // larger grids for longer matches
+  const sizes = [20,22,24,26,28,30];
   const gridSize = sizes[Math.floor(rng()*sizes.length)];
 
-  // bots 1..6 depending on grid size and rng
   const maxBots = Math.max(1, Math.floor(gridSize/4));
   const botsCount = Math.floor(rng()*Math.min(6, maxBots)) + 1;
 
-  // base speed and ticks
-  const speed = 1; // one tile per tick
-  const maxTicks = gridSize * gridSize * 4; // safe cap
+  // longer max ticks to allow more playtime
+  const maxTicks = gridSize * gridSize * 8;
 
-  // generate bot presets
   const bots = [];
-  for (let b=0;b<botsCount;b++){
-    // starting positions deterministically spaced around edges
+  for(let b=0;b<botsCount;b++){
     const edge = b % 4;
     const margin = 1;
     let x,y,dir;
-    if(edge===0){ x = margin; y = 1 + Math.floor(rng()* (gridSize-2)); dir = 0; } // right
-    if(edge===1){ x = gridSize-2; y = 1 + Math.floor(rng()* (gridSize-2)); dir = 2; } // left
-    if(edge===2){ y = margin; x = 1 + Math.floor(rng()* (gridSize-2)); dir = 1; } // down
-    if(edge===3){ y = gridSize-2; x = 1 + Math.floor(rng()* (gridSize-2)); dir = 3; } // up
+    if(edge===0){ x = margin; y = 1 + Math.floor(rng()*(gridSize-2)); dir = 0; }
+    if(edge===1){ x = gridSize-2; y = 1 + Math.floor(rng()*(gridSize-2)); dir = 2; }
+    if(edge===2){ y = margin; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 1; }
+    if(edge===3){ y = gridSize-2; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 3; }
 
-    // bot style / aggressiveness influences how often it turns and whether it fires discs
-    const style = Math.floor(rng()*3); // 0=survivor(zigzag),1=chaser(random attempts),2=aggressive(turny)
+    // bot "aggression" influences chance to fire disk & randomness
+    const aggression = rng(); // 0..1
     const willFire = rng() < 0.5;
-    // Generate movement script: array of turn commands for each tick: -1 left, 0 straight, +1 right
-    const script = [];
-    for(let t=0;t<maxTicks;t++){
-      const p =
-        style===0 ? (rng()<0.08 ? (rng()<0.5?-1:1):0)
-        : style===1 ? (rng()<0.12 ? (rng()<0.5?-1:1):0)
-        : (rng()<0.18 ? (rng()<0.5?-1:1):0);
-      script.push(p);
-    }
 
-    // disc script: will attempt to fire every so often
-    const discTimes = [];
-    if(willFire){
-      for(let t=10;t<maxTicks;t+=Math.floor(10 + rng()*80)){
-        if(rng()<0.5) discTimes.push(t);
-      }
-    }
-
-    bots.push({id:`bot${b}`, x,y,dir,style,script,discTimes, color:'red'});
+    bots.push({ id:`bot${b}`, x,y, dir, aggression, willFire, disc:null, alive:true });
   }
 
-  // user start - fixed near center facing up
-  const userStart = { x: Math.floor(gridSize/2), y: Math.floor(gridSize*0.75), dir: 3, color:'cyan' };
+  const userStart = { x: Math.floor(gridSize/2), y: Math.floor(gridSize*0.75), dir: 3 };
 
-  return { seed, gridSize, bots, userStart, speed, maxTicks };
+  return { seed, gridSize, bots, userStart, maxTicks };
 }
 
-/* ------------------------------
-  Core game state + rendering
-------------------------------*/
-
+//// Game core
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d', {alpha:false});
-
-// scale canvas size to CSS pixels * devicePixelRatio for crispness
-function resizeCanvas(){
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width * devicePixelRatio);
-  canvas.height = Math.floor(rect.height * devicePixelRatio);
-}
+function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); }
 window.addEventListener('resize', resizeCanvas);
 
 let gameState = null;
 let animationId = null;
 let lastTickTime = 0;
-const TICK_MS = 120; // basic tick interval (you can tune)
+const TICK_MS = 100; // faster tick for smoother movement (tune)
+
+const DIRS = [ {dx:1,dy:0}, {dx:0,dy:1}, {dx:-1,dy:0}, {dx:0,dy:-1} ];
 
 function initGameForDateKey(dateKey){
   const setup = makeDailySetup(dateKey);
   const N = setup.gridSize;
-  // grid matrix for trails; 0 empty, 'user', 'bot:<id>'
-  const grid = Array.from({length:N},()=>Array(N).fill(0));
+  const grid = Array.from({length:N}, ()=>Array(N).fill(0));
 
-  // place user
-  const user = {
-    id:'user',
-    x: setup.userStart.x,
-    y: setup.userStart.y,
-    dir: setup.userStart.dir, // 0 right,1 down,2 left,3 up (clockwise)
-    color:'cyan',
-    alive:true,
-    discCount:1,
-    disc:null, // active disc
-    trailColor: 'cyan'
-  };
+  const user = { id:'user', x: setup.userStart.x, y: setup.userStart.y, dir: setup.userStart.dir, color:'cyan', alive:true, discCount:1, disc:null, trail:'user' };
   grid[user.y][user.x] = 'user';
 
-  // bots
-  const bots = setup.bots.map(b=>{
-    return {
-      id:b.id,
-      x:b.x, y:b.y, dir:b.dir, alive:true,
-      style:b.style, script:b.script.slice(), discTimes:new Set(b.discTimes),
-      disc:null, trailColor:'red'
-    }
-  });
+  const bots = setup.bots.map(b=>({ id:b.id, x:b.x, y:b.y, dir:b.dir, aggression:b.aggression, willFire:b.willFire, disc:null, alive:true, trail:b.id }));
   bots.forEach(b=> grid[b.y][b.x] = b.id);
 
-  gameState = {
-    dateKey,
-    setup,
-    grid,
-    N,
-    user,
-    bots,
-    running:false,
-    tick:0,
-    startTime:0,
-    endTime:0,
-    finished:false,
-    result:'', // 'win' or 'lose'
-  };
+  gameState = { dateKey, setup, grid, N, user, bots, running:false, tick:0, startTime:0, endTime:0, finished:false, result:'' };
   resizeCanvas();
   renderOnce();
+  updateStreakDisplay();
 }
 
-/* render grid with camera centered on user (third person) */
+/* rendering */
 function renderOnce(){
   if(!gameState) return;
   const {N, grid, user} = gameState;
-  // We'll draw using tile size determined from canvas
   const w = canvas.width, h = canvas.height;
-  // pad inside the frame
   const pad = Math.floor(10 * devicePixelRatio);
-  const areaW = w - pad*2;
-  const areaH = h - pad*2;
-  // tile size to fit N*N square centered vertically
+  const areaW = w - pad*2, areaH = h - pad*2;
   const tile = Math.floor(Math.min(areaW / N, areaH / N));
-  // compute viewport pixel offset to center the player
   const viewW = tile * N, viewH = tile * N;
-  const ox = Math.floor((w - viewW)/2);
-  const oy = Math.floor((h - viewH)/2);
+  const ox = Math.floor((w - viewW)/2), oy = Math.floor((h - viewH)/2);
 
-  // clear
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
 
-  // draw grid background (very faint)
-  ctx.fillStyle = '#030303';
-  ctx.fillRect(ox, oy, viewW, viewH);
-
-  // draw trails and tiles
   for(let r=0;r<N;r++){
     for(let c=0;c<N;c++){
       const val = grid[r][c];
       const px = ox + c*tile, py = oy + r*tile;
-      if(val === 0) {
-        // dark tile
-        ctx.fillStyle = '#010101';
-        ctx.fillRect(px,py,tile,tile);
-      } else {
-        // trail color
-        ctx.fillStyle = (val === 'user') ? 'rgba(0,240,255,0.98)' : 'rgba(255,43,43,0.98)';
-        ctx.fillRect(px,py,tile,tile);
+      if(val === 0) { ctx.fillStyle = '#010101'; ctx.fillRect(px,py,tile,tile); }
+      else {
+        const col = (val === 'user') ? 'rgba(0,240,255,0.98)' : 'rgba(255,43,43,0.98)';
+        ctx.fillStyle = col; ctx.fillRect(px,py,tile,tile);
       }
     }
   }
 
-  // draw bikes as small squares with a marker "head"
   function drawBike(x,y,color){
     const px = ox + x*tile, py = oy + y*tile;
-    ctx.fillStyle = color;
-    ctx.fillRect(px+tile*0.15, py+tile*0.15, tile*0.7, tile*0.7);
-    // head indicator (smaller rectangle)
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(px+tile*0.42, py+tile*0.08, tile*0.16, tile*0.16);
+    ctx.fillStyle = color; ctx.fillRect(px+tile*0.15, py+tile*0.15, tile*0.7, tile*0.7);
+    ctx.fillStyle = '#fff'; ctx.fillRect(px+tile*0.42, py+tile*0.08, tile*0.16, tile*0.16);
   }
-  // user
-  if(gameState.user.alive) drawBike(gameState.user.x, gameState.user.y, 'rgba(0,240,255,1)');
-  // bots
-  gameState.bots.forEach(b=> { if(b.alive) drawBike(b.x, b.y, 'rgba(255,43,43,1)'); });
 
-  // draw discs (moving) — discs have sub-tile positions for bounce physics
+  if(gameState.user.alive) drawBike(gameState.user.x, gameState.user.y, 'rgba(0,240,255,1)');
+  gameState.bots.forEach(b=>{ if(b.alive) drawBike(b.x, b.y, 'rgba(255,43,43,1)'); });
+
   const discs = [];
   if(gameState.user.disc) discs.push(gameState.user.disc);
   gameState.bots.forEach(b=>{ if(b.disc) discs.push(b.disc); });
   discs.forEach(d=>{
     const cx = ox + d.x * tile + tile/2;
     const cy = oy + d.y * tile + tile/2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, Math.max(2, tile*0.16), 0, Math.PI*2);
-    ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, tile*0.16), 0, Math.PI*2);
+    ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)'; ctx.fill();
   });
 }
 
-/* Helpers for movement */
-const DIRS = [
-  {dx:1,dy:0}, // 0 right
-  {dx:0,dy:1}, // 1 down
-  {dx:-1,dy:0},// 2 left
-  {dx:0,dy:-1} // 3 up
-];
+/* movement utils */
+function turnDir(dir, cmd){ if(cmd===-1) return (dir+3)%4; if(cmd===1) return (dir+1)%4; return dir; }
 
-function turn(dir, turnCommand){
-  if(turnCommand === -1) return (dir + 3) % 4; // left
-  if(turnCommand === 1) return (dir + 1) % 4; // right
-  return dir;
-}
-
-/* Disc physics: discrete position in grid cells but allow fractional coordinates for bounces.
-  Disc has x,y floats (cell coords), vx,vy in cells per tick.
-  On bounce we invert velocity on axis. Corner bounce -> invert both so keeps diagonal.
-*/
 function createDisc(ownerId, startX, startY, dir){
-  let vx = DIRS[dir].dx, vy = DIRS[dir].dy;
-  return {owner:ownerId, x:startX + 0.5, y:startY + 0.5, vx, vy};
+  // spawn one cell ahead if possible
+  const dx = DIRS[dir].dx, dy = DIRS[dir].dy;
+  const spawnX = startX + dx;
+  const spawnY = startY + dy;
+  const vx = dx * 1.6; // speed multiplier (tune)
+  const vy = dy * 1.6;
+  // Keep fractional position centered on cells
+  const baseX = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnX + 0.0 : startX + 0.5;
+  const baseY = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnY + 0.0 : startY + 0.5;
+  return { owner: ownerId, x: baseX + 0.5, y: baseY + 0.5, vx, vy };
 }
 
-/* Step tick: move bikes, process bots scripts, move discs and detect collisions */
+/* check cell occupancy helper */
+function cellOccupied(grid, x, y){
+  if(x < 0 || x >= grid[0].length || y < 0 || y >= grid.length) return true;
+  return grid[y][x] !== 0;
+}
+
+/* Bot decision: avoid own trail, user's trail, and walls via 1-tile lookahead */
+function botChooseDir(bot, gameState){
+  const {grid, N, user} = gameState;
+  const tries = [];
+  // preference order: straight, left, right (but jitter via aggression)
+  // compute possible directions
+  const straight = bot.dir;
+  const left = (bot.dir + 3) % 4;
+  const right = (bot.dir + 1) % 4;
+  // order can be shuffled slightly based on aggression for variety
+  const order = [straight, left, right];
+  if(Math.random() < bot.aggression * 0.25){
+    // flip to make more jitter
+    order.reverse();
+  }
+
+  for(const d of order){
+    const nx = bot.x + DIRS[d].dx;
+    const ny = bot.y + DIRS[d].dy;
+    // check immediate collision
+    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
+    // check the target cell: if it's empty or is occupied by someone about to leave? conservatively require empty
+    if(grid[ny][nx] !== 0) continue;
+    // check two-step lookahead: ensure next cell after stepping won't be a dead-end (i.e., not immediately trapped by walls/trails)
+    let safe = false;
+    for(let dd=0; dd<4; dd++){
+      const nnx = nx + DIRS[dd].dx;
+      const nny = ny + DIRS[dd].dy;
+      if(nnx < 0 || nnx >= N || nny < 0 || nny >= N) continue;
+      if(grid[nny][nnx] === 0) { safe = true; break; }
+    }
+    if(!safe) {
+      // if aggression high, they may accept dead-end occasionally
+      if(bot.aggression < 0.6) continue;
+    }
+    // also avoid user's immediate location (prefer steering away if user is adjacent)
+    if(nx === user.x && ny === user.y) continue;
+    return d;
+  }
+  // if none found, try any direction that is not immediate collision
+  for(let d=0; d<4; d++){
+    const nx = bot.x + DIRS[d].dx, ny = bot.y + DIRS[d].dy;
+    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
+    if(grid[ny][nx] !== 0) continue;
+    return d;
+  }
+  // no safe move -> return current dir (will die next step when collision is evaluated)
+  return bot.dir;
+}
+
+/* Step Tick */
 function stepTick(){
   if(!gameState || gameState.finished) return;
   const {N, grid, user, bots, setup} = gameState;
 
-  // Move bikes: first apply any player turn (turns are immediate) — player turn is handled by controls events changing user.dir
-
-  // advance user one tile in dir if alive
+  // USER movement
   if(user.alive){
     const nd = DIRS[user.dir];
     const nx = user.x + nd.dx, ny = user.y + nd.dy;
-    // check collisions: wall or any trail
-    if(nx < 0 || nx >= N || ny < 0 || ny >= N){
-      user.alive = false;
-    } else if(grid[ny][nx] !== 0){
-      // hit a trail -> dead
-      user.alive = false;
-    } else {
-      // move and leave trail at previous pos
-      grid[user.y][user.x] = 'user';
-      user.x = nx; user.y = ny;
-      grid[user.y][user.x] = 'user';
-    }
+    if(nx < 0 || nx >= N || ny < 0 || ny >= N){ user.alive = false; }
+    else if(grid[ny][nx] !== 0){ user.alive = false; }
+    else { grid[user.y][user.x] = 'user'; user.x = nx; user.y = ny; grid[user.y][user.x] = 'user'; }
   }
 
-  // Bots: each bot uses its script at tick to possibly turn
-  bots.forEach(bot=>{
-    if(!bot.alive) return;
-    const cmd = bot.script[gameState.tick] || 0;
-    bot.dir = turn(bot.dir, cmd);
+  // BOTS decide and move
+  for(const bot of bots){
+    if(!bot.alive) continue;
+    const newDir = botChooseDir(bot, gameState);
+    bot.dir = newDir;
     const nd = DIRS[bot.dir];
     const nx = bot.x + nd.dx, ny = bot.y + nd.dy;
-    // collision rules
     if(nx < 0 || nx >= N || ny < 0 || ny >= N || grid[ny][nx] !== 0){
-      // bot collides -> dies
+      // collided -> die
       bot.alive = false;
-      return;
+      continue;
     } else {
       grid[bot.y][bot.x] = bot.id;
       bot.x = nx; bot.y = ny;
       grid[bot.y][bot.x] = bot.id;
     }
-    // potential disc firing schedule
-    if(bot.discTimes.has(gameState.tick) && !bot.disc){
+    // bot disc firing (simple probabilistic based on aggression)
+    if(bot.willFire && !bot.disc && Math.random() < (0.012 + bot.aggression*0.01)){
       bot.disc = createDisc(bot.id, bot.x, bot.y, bot.dir);
     }
-  });
+  }
 
-  // Move discs: user and bots' discs
+  // Move discs (user + bots)
   const allDiscs = [];
-  if(user.disc) allDiscs.push({disc:user.disc, holder:user});
-  bots.forEach(b=>{
-    if(b.disc) allDiscs.push({disc:b.disc, holder:b});
-  });
+  if(user.disc) allDiscs.push({disc:user.disc, owner:user});
+  bots.forEach(b=>{ if(b.disc) allDiscs.push({disc:b.disc, owner:b}); });
 
-  // move each disc by one cell unit (we'll use step=1 fractional)
   for(const entry of allDiscs){
     const d = entry.disc;
-    // move
-    d.x += d.vx * 0.5; // scale so disc moves between tiles slower-ish (tune)
-    d.y += d.vy * 0.5;
-    // bounce off walls: if center crosses border, reflect and clamp within bounds
-    let bounced = false;
-    if(d.x <= 0.5){ d.x = 0.5; d.vx *= -1; bounced=true; }
-    if(d.x >= N-0.5){ d.x = N-0.5; d.vx *= -1; bounced=true; }
-    if(d.y <= 0.5){ d.y = 0.5; d.vy *= -1; bounced=true; }
-    if(d.y >= N-0.5){ d.y = N-0.5; d.vy *= -1; bounced=true; }
-    // after bounce we continue
+    // move (higher speed)
+    d.x += d.vx * 0.6;
+    d.y += d.vy * 0.6;
+    // wall bounces
+    if(d.x <= 0.5){ d.x = 0.5; d.vx *= -1; }
+    if(d.x >= N-0.5){ d.x = N-0.5; d.vx *= -1; }
+    if(d.y <= 0.5){ d.y = 0.5; d.vy *= -1; }
+    if(d.y >= N-0.5){ d.y = N-0.5; d.vy *= -1; }
 
-    // check collision with bikes: we compare to discrete cell centers
-    const cx = Math.floor(d.x); const cy = Math.floor(d.y);
-    // user hit?
-    if(entry.holder && entry.holder.id !== 'user'){
-      // disc from bot - can hit user or other bots
-      if(gameState.user.alive && cx === gameState.user.x && cy === gameState.user.y){
-        // hit player -> reload to player (owner becomes user)
-        // remove disc from bot
-        entry.holder.disc = null;
-        // give disc to user (reload)
-        user.discCount = Math.min(1, user.discCount + 1);
-        continue;
-      }
-    } else {
-      // disc from user
-      // can hit bots
+    const cx = Math.floor(d.x), cy = Math.floor(d.y);
+    if(cx < 0 || cx >= N || cy < 0 || cy >= N) continue;
+
+    // disc hitting a bike
+    if(entry.owner !== user && user.alive && cx === user.x && cy === user.y){
+      // bot disc hit user -> bot's disc removed, user reload
+      entry.owner.disc = null;
+      user.discCount = Math.min(1, user.discCount + 1);
+      continue;
+    }
+    if(entry.owner === user){
+      // user disc can hit bots
       for(const bot of bots){
         if(bot.alive && cx === bot.x && cy === bot.y){
-          // eliminate bot
           bot.alive = false;
-          // remove disc
           user.disc = null;
-          // mark cell as user trail (already done)
         }
       }
-      // also if it hits user (self) -> reload
       if(cx === user.x && cy === user.y){
-        // reload disc into user
+        // user caught their disc -> reload
         user.disc = null;
         user.discCount = Math.min(1, user.discCount + 1);
-        continue;
       }
     }
   }
 
-  // Simple disc vs trail collisions: if disc center falls onto a trail cell (grid not empty) and not on a bike,
-  // it bounces off (we already handle wall bounces only). For simplicity, treat trail as solid wall: reflect like wall.
-  // We'll check if any disc center now sits over a non-empty grid cell and is not on a bike cell of its owner.
+  // disc vs trail collisions - bounce on non-empty grid
   for(const entry of allDiscs){
     const d = entry.disc;
     if(!d) continue;
     const cx = Math.floor(d.x), cy = Math.floor(d.y);
     if(cx < 0 || cx >= N || cy < 0 || cy >= N) continue;
     const cell = grid[cy][cx];
-    // if the cell contains a trail or bike (non-empty) and it's not the origin cell of the disc owner, bounce
-    const ownerId = entry.holder.id;
+    const ownerId = entry.owner.id;
     if(cell !== 0){
-      // if the disc hit the bike of a different owner -> eliminate
-      if(cell !== ownerId && (cell === 'user' || cell.startsWith('bot'))){
-        // hit that bike
-        const targetIsUser = (cell === 'user');
-        if(targetIsUser){
-          // if user hit by a bot disc -> reload disc to user (per rules)
-          entry.holder.disc = null;
+      if(cell !== ownerId && (cell === 'user' || typeof cell === 'string' && cell.startsWith('bot'))){
+        // hit bike of another -> eliminate appropriately
+        if(cell === 'user'){
+          entry.owner.disc = null;
           user.discCount = Math.min(1, user.discCount + 1);
         } else {
-          // if user disc hits bot was handled earlier; if another bot disc hits a bot, eliminate
-          // find that bot and kill
-          const targetBot = gameState.bots.find(b=>b.id === cell);
-          if(targetBot) targetBot.alive = false;
-          entry.holder.disc = null;
+          const target = gameState.bots.find(b=>b.id === cell);
+          if(target) target.alive = false;
+          entry.owner.disc = null;
         }
       } else {
-        // hit wall/trail: bounce by flipping vx/vy depending on which axis collided.
-        // Determine penetration along x vs y by checking previous pos (approx)
-        // Simple approach: flip both to mimic corner bounce if both neighbors occupied.
+        // bounce off the trail/wall by inverting velocity
         d.vx *= -1;
         d.vy *= -1;
       }
     }
   }
 
-  // Remove discs that are nullified
-  if(user.disc && user.disc === null) user.disc = null;
+  // cleanup null discs
+  if(user.disc === null) user.disc = null;
   gameState.bots.forEach(b=>{ if(b.disc === null) b.disc = null; });
 
-  // If user is dead -> finish
+  // check end conditions
   const aliveBots = gameState.bots.filter(b=>b.alive);
-  if(!user.alive){
-    endGame('lose');
-    return;
-  }
-  if(aliveBots.length === 0){
-    endGame('win');
-    return;
-  }
+  if(!user.alive){ endGame('lose'); return; }
+  if(aliveBots.length === 0){ endGame('win'); return; }
 
   gameState.tick++;
-  if(gameState.tick > setup.maxTicks){
-    // too long -> end lose
-    endGame('lose');
-    return;
-  }
+  if(gameState.tick > setup.maxTicks){ endGame('lose'); return; }
 }
 
-/* start/stop loop */
 function gameLoopStep(now){
   if(!gameState || !gameState.running) return;
   if(!lastTickTime) lastTickTime = now;
   const dt = now - lastTickTime;
   if(dt >= TICK_MS){
-    // run one tick
-    stepTick();
-    renderOnce();
-    lastTickTime = now;
+    stepTick(); renderOnce(); lastTickTime = now;
   }
   animationId = requestAnimationFrame(gameLoopStep);
 }
@@ -652,114 +505,105 @@ function gameLoopStep(now){
 function startGame(){
   if(!gameState) return;
   if(gameState.running) return;
-  gameState.running = true;
-  gameState.tick = 0;
-  gameState.startTime = performance.now();
-  lastTickTime = 0;
+  // hide title visually
+  document.getElementById('title').classList.add('title-hidden');
+  gameState.running = true; gameState.tick = 0; gameState.startTime = performance.now(); lastTickTime = 0;
   animationId = requestAnimationFrame(gameLoopStep);
 }
 
-function pauseGame(){
-  if(animationId) cancelAnimationFrame(animationId);
-  animationId = null;
-  gameState.running = false;
+function pauseGame(){ if(animationId) cancelAnimationFrame(animationId); animationId = null; gameState.running = false; }
+
+//// Streak storage
+function loadStreak(){
+  const raw = localStorage.getItem('gridle_streak');
+  return raw ? JSON.parse(raw) : { lastDate: null, streak: 0, lastResult: null };
+}
+function saveStreak(obj){ localStorage.setItem('gridle_streak', JSON.stringify(obj)); }
+function updateStreakOnResult(result, dateKey){
+  const today = dateKey;
+  const s = loadStreak();
+  if(result === 'win'){
+    if(s.lastDate){
+      const last = dateKeyToDate(s.lastDate);
+      const t = dateKeyToDate(today);
+      const diffDays = Math.round((t - last)/(1000*60*60*24));
+      s.streak = (diffDays === 1) ? (s.streak + 1) : 1;
+    } else {
+      s.streak = 1;
+    }
+    s.lastDate = today; s.lastResult = 'win';
+  } else if(result === 'lose'){
+    s.streak = 0;
+    s.lastDate = today; s.lastResult = 'lose';
+  }
+  saveStreak(s);
+  updateStreakDisplay();
+}
+function updateStreakDisplay(){
+  const s = loadStreak();
+  document.getElementById('streakDisplay').textContent = `🔥 Streak: ${s.streak}`;
+}
+
+/* end game */
+const endPopup = document.getElementById('endPopup');
+const popupTitle = document.getElementById('popupTitle');
+const popupBody = document.getElementById('popupBody');
+
+function showEndPopup(result, timeMs){
+  if(result === 'win'){ popupTitle.textContent = "You won today's Grid!"; popupBody.textContent = `Time: ${formatTimeMs(timeMs)}`; }
+  else { popupTitle.textContent = "You lost the grid"; popupBody.textContent = `Better luck tomorrow.`; }
+  endPopup.classList.add('show');
+  document.getElementById('inGameControls').classList.add('hidden');
+  document.getElementById('playBtn').classList.add('hidden');
 }
 
 function endGame(result){
   pauseGame();
-  gameState.finished = true;
-  gameState.result = result;
-  gameState.endTime = performance.now();
+  gameState.finished = true; gameState.result = result; gameState.endTime = performance.now();
   const timeMs = Math.max(0, gameState.endTime - gameState.startTime);
-  // persist result to localStorage keyed by date
+  // persist daily result
   const key = `gridle_result_${gameState.dateKey}`;
-  localStorage.setItem(key, JSON.stringify({
-    result,
-    timeMs,
-    dateKey: gameState.dateKey,
-    playedAt: Date.now()
-  }));
+  localStorage.setItem(key, JSON.stringify({ result, timeMs, dateKey: gameState.dateKey, playedAt: Date.now() }));
+  updateStreakOnResult(result, gameState.dateKey);
+  // show popup & toggle share if win
   showEndPopup(result, timeMs);
-  // reveal share button only on win
   toggleShareButton(result === 'win');
 }
 
-/* ------------------------------
-  UI controls and event wiring
-------------------------------*/
-
+/* Controls & UI wiring */
 const playBtn = document.getElementById('playBtn');
 const inGameControls = document.getElementById('inGameControls');
 const turnLeft = document.getElementById('turnLeft');
 const turnRight = document.getElementById('turnRight');
 const discBtn = document.getElementById('discBtn');
 const shareBtn = document.getElementById('shareBtn');
-const endPopup = document.getElementById('endPopup');
-const popupTitle = document.getElementById('popupTitle');
-const popupBody = document.getElementById('popupBody');
 
-function showStage(stage){ // 'play', 'controls', 'share'
-  playBtn.classList.toggle('hidden', stage !== 'play');
-  inGameControls.classList.toggle('hidden', stage !== 'controls');
-  shareBtn.classList.toggle('hidden', stage !== 'share');
-}
+function showStage(stage){ playBtn.classList.toggle('hidden', stage !== 'play'); inGameControls.classList.toggle('hidden', stage !== 'controls'); shareBtn.classList.toggle('hidden', stage !== 'share'); }
+function toggleShareButton(show){ if(show) showStage('share'); else showStage('play'); }
 
-function toggleShareButton(show){
-  if(show) showStage('share');
-  else showStage('play');
-}
-
-function showEndPopup(result, timeMs){
-  if(result === 'win'){
-    popupTitle.textContent = "You won today's Grid!";
-    popupBody.textContent = `Time: ${formatTimeMs(timeMs)}`;
-  } else {
-    popupTitle.textContent = "You lost the grid";
-    popupBody.textContent = `Better luck tomorrow.`;
-  }
-  endPopup.classList.add('show');
-
-  // keep popup visible; hide play/controls
-  inGameControls.classList.add('hidden');
-  playBtn.classList.add('hidden');
-}
-
-// format ms into mm:ss.mmm
-function formatTimeMs(ms){
-  const s = Math.floor(ms/1000);
-  const mm = Math.floor(s/60);
-  const ss = s % 60;
-  const mss = Math.floor(ms % 1000);
-  return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}.${String(mss).padStart(3,'0')}`;
-}
-
-/* button/events */
 playBtn.addEventListener('click', ()=>{
-  // check localStorage if already played today
   const key = `gridle_result_${gameState.dateKey}`;
   if(localStorage.getItem(key)){
-    // show result instead of replaying
     const rec = JSON.parse(localStorage.getItem(key));
     showEndPopup(rec.result, rec.timeMs);
     toggleShareButton(rec.result === 'win');
     return;
   }
-  startGame();
-  showStage('controls');
+  startGame(); showStage('controls');
 });
 
-// touch controls
+// on-screen touch controls
 turnLeft.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 3)%4; });
 turnRight.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 1)%4; });
+
 discBtn.addEventListener('click', ()=>{
   if(!gameState || !gameState.user.alive) return;
   if(gameState.user.disc || gameState.user.discCount <= 0) return;
-  // create disc from user's current pos and dir
   gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
   gameState.user.discCount = 0;
 });
 
-// keyboard controls
+// keyboard + WASD controls + space
 window.addEventListener('keydown', (e)=>{
   if(!gameState || !gameState.user.alive) return;
   if(e.code === 'ArrowLeft' || e.code === 'KeyA') { gameState.user.dir = (gameState.user.dir + 3)%4; }
@@ -772,25 +616,37 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-/* share logic: builds emoji grid and opens sms: or mailto: */
+// swipe controls for mobile (basic)
+let touchStartX = 0, touchStartY = 0;
+window.addEventListener('touchstart', (e)=>{ const t = e.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; });
+window.addEventListener('touchend', (e)=>{
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
+  if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+  if(Math.abs(dx) > Math.abs(dy)){
+    if(dx > 0) gameState.user.dir = 0; else gameState.user.dir = 2;
+  } else {
+    if(dy > 0) gameState.user.dir = 1; else gameState.user.dir = 3;
+  }
+});
+
+/* Share: simplified emoji grid downsampled */
 function buildEmojiGrid(){
   if(!gameState) return '';
   const {N, grid} = gameState;
-  // map grid to emojis: empty⬛, user path🟦, bot path🟥
-  const black = '⬛';
-  const blue = '🟦';
-  const red = '🟥';
+  // downsample so width ~ 12 characters for share
+  const target = 12;
+  const step = Math.ceil(N / target);
+  const black = '⬛', blue = '🟦', red = '🟥';
   const lines = [];
-  const maxCols = Math.min(40, N); // keep lines reasonable for SMS rendering
-  for(let r=0;r<N;r++){
+  for(let r=0;r<N;r+=step){
     let row = '';
-    for(let c=0;c<N;c++){
+    for(let c=0;c<N;c+=step){
       const val = grid[r][c];
       if(val === 0) row += black;
       else if(val === 'user') row += blue;
       else row += red;
-      // prevent very long line blowups
-      if(row.length >= maxCols) break;
+      if(row.length >= target) break;
     }
     lines.push(row);
   }
@@ -804,52 +660,44 @@ shareBtn.addEventListener('click', ()=>{
   const timeMs = rec ? rec.timeMs : (gameState.endTime ? (gameState.endTime-gameState.startTime) : 0);
   const timeStr = formatTimeMs(timeMs);
   const message = `I completed today's challenge of the grid in ${timeStr}. Try it now at guildcoder.github.io/girdle!\n\n` + buildEmojiGrid();
-  // detect mobile-ish (basic)
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
   if(isMobile){
-    // open sms: with body (most mobile supports body param)
-    const smsUrl = `sms:?&body=${encodeURIComponent(message)}`;
-    window.location.href = smsUrl;
+    window.location.href = `sms:?&body=${encodeURIComponent(message)}`;
   } else {
-    // desktop -> mailto
     const subject = encodeURIComponent("I completed today's Gridle!");
-    const mailUrl = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
-    window.location.href = mailUrl;
+    window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
   }
 });
 
-/* ------------------------------
-  Initialization: date key, setup, and "remember me" check
-------------------------------*/
+/* format time */
+function formatTimeMs(ms){
+  const s = Math.floor(ms/1000);
+  const mm = Math.floor(s/60);
+  const ss = s % 60;
+  const mss = Math.floor(ms % 1000);
+  return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}.${String(mss).padStart(3,'0')}`;
+}
 
+/* Boot + remember-me play restriction + show streak on load */
 function boot(){
   const dateKey = getCentralDateKey(new Date());
   initGameForDateKey(dateKey);
 
-  // check if result exists for today
   const key = `gridle_result_${dateKey}`;
   const rec = localStorage.getItem(key);
   if(rec){
     const r = JSON.parse(rec);
-    // show result popup and share if needed
     showEndPopup(r.result, r.timeMs);
     toggleShareButton(r.result === 'win');
   } else {
-    // show Play button stage
     showStage('play');
   }
 }
-// initial draw placeholder
 boot();
 
-/* expose for debugging in console */
-window._gridle = {
-  makeDailySetup,
-  initGameForDateKey,
-  gameState,
-  getCentralDateKey,
-  boot
-};
+/* expose for debugging */
+window._gridle = { makeDailySetup, initGameForDateKey, gameState, getCentralDateKey, boot };
+
 </script>
 </body>
 </html>
