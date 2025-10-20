@@ -3,136 +3,117 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>GRIDLE</title>
+<title>Gridle</title>
 <link rel="manifest" href="/manifest.json">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
   :root{
     --bg:#000;
     --neon-cyan:#00f0ff;
     --neon-red:#ff2b2b;
-    --neon-blue:#00aaff;
     --frame-pad:12px;
     --font: 'Orbitron', system-ui, sans-serif;
   }
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-.meta { 
-  margin-top:8px; 
-  color:#00f0ff; /* brighter neon cyan */ 
-  font-size:14px; 
-  font-weight:700; 
-  opacity:0.9; 
-  text-align:center; 
-  width:100%; 
-  max-width:520px; 
-}
+
   html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
-  .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
 
-  /* floating title */
-  .title-wrap { position:relative; width:100%; display:flex; justify-content:center; pointer-events:none; margin-bottom:6px; }
+  .app{
+    height:100vh; width:100vw; display:flex;
+    flex-direction:column; justify-content:center;
+    align-items:center; overflow:hidden; padding:12px;
+    user-select:none; -webkit-user-select:none;
+  }
+
+  /* Floating neon title */
   .title {
-    font-family: 'Orbitron', monospace;
-    color:var(--neon-cyan);
-    letter-spacing:6px;
-    font-size:32px;
-    transform: translateY(0);
-    text-shadow:
-      0 0 8px rgba(0,240,255,0.75),
-      0 0 28px rgba(0,240,255,0.15);
-    opacity:1;
-    transition: transform .4s ease, opacity .35s ease;
-    font-style: italic;
-  }
-  .title.small { font-size:20px; letter-spacing:3px; color:#88faff; opacity:0.9; }
-
-  /* little streak counter under title */
-  .streak {
-    margin-top:6px;
-    color:var(--neon-cyan);
-    font-size:12px;
-    opacity:0.9;
-    text-shadow: 0 0 8px rgba(0,240,255,0.12);
-    pointer-events:none;
+    position:absolute; top:20px; left:50%;
+    transform:translateX(-50%);
+    font-size:48px; font-weight:700;
+    font-style:italic; color:var(--neon-cyan);
+    text-shadow: 0 0 6px var(--neon-cyan), 0 0 14px var(--neon-cyan);
+    pointer-events:none; z-index:50;
   }
 
-  /* neon frame for game */
   .frame {
-    width:min(96vw,520px);
-    height:calc(min(96vw,520px) * 1.2);
+    width:min(96vw,600px);
+    height:min(96vw,600px);
     max-height:92vh;
     background:#000;
     border-radius:14px;
     position:relative;
     box-shadow:0 0 30px rgba(0,255,255,0.05);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     padding:var(--frame-pad);
     border:4px solid rgba(0,255,255,0.06);
-    outline: 2px solid rgba(0,255,255,0.12);
-    overflow:hidden;
   }
-<!-- iOS Web App Settings -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gridle">
 
-<!-- Fallback icons for iOS -->
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
-
-<!-- Manifest -->
-<link rel="manifest" href="manifest.json">
   .frame::after{
-    content:'';
-    position:absolute;
-    inset:calc(var(--frame-pad) - 6px);
+    content:''; position:absolute; inset:calc(var(--frame-pad) - 6px);
     border-radius:12px;
     box-shadow: 0 0 28px var(--neon-cyan), inset 0 0 10px rgba(0,255,255,0.04);
     pointer-events:none;
   }
 
-  canvas.game { width:100%; height:100%; border-radius:8px; background:#000; display:block; image-rendering: pixelated; }
+  canvas.game {
+    width:100%; height:100%; border-radius:8px;
+    background:#000; display:block; image-rendering: pixelated;
+  }
 
-  .controls { width:100%; max-width:520px; margin-top:10px; display:flex; justify-content:center; gap:12px; align-items:center; }
+  .controls {
+    width:100%; max-width:520px; margin-top:10px;
+    display:flex; justify-content:center; gap:12px; align-items:center;
+  }
 
-  .button { background:#000; border:2px solid var(--neon-cyan); color:var(--neon-cyan); padding:10px 14px; border-radius:10px; font-weight:700; min-width:160px; text-align:center; cursor:pointer; box-shadow: 0 6px 18px rgba(0,255,255,0.06); }
+  .button {
+    background:#000; border:2px solid var(--neon-cyan);
+    color:var(--neon-cyan); padding:10px 14px; border-radius:10px;
+    font-weight:700; min-width:160px; text-align:center; cursor:pointer;
+    box-shadow: 0 6px 18px rgba(0,255,255,0.06);
+  }
   .button.hidden{ display:none; }
 
   .touch-controls { display:flex; align-items:center; gap:12px; background:transparent; }
-  .control-rect { width:64px; height:48px; border-radius:8px; background:#000; border:3px solid var(--neon-cyan); display:flex; align-items:center; justify-content:center; position:relative; }
+
+  .control-rect { width:64px; height:48px; border-radius:8px;
+    background:#000; border:3px solid var(--neon-cyan);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
   .control-rect .triangle{ width:0;height:0;border-style:solid;opacity:0.95; }
   .left .triangle { border-width:12px 16px 12px 0;border-color:transparent var(--neon-cyan) transparent transparent; transform:translateX(-6px); }
   .right .triangle { border-width:12px 0 12px 16px;border-color:transparent transparent transparent var(--neon-cyan); transform:translateX(6px); }
-  .disc-button { width:56px;height:56px;border-radius:50%; border:4px solid var(--neon-cyan); display:flex;align-items:center;justify-content:center; background:#000;font-weight:900;font-size:20px; }
 
-  .popup { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.85); border:3px solid var(--neon-cyan); padding:20px 24px; border-radius:12px; text-align:center; z-index:30; display:none; min-width:260px; }
+  .disc-button { width:56px;height:56px;border-radius:50%;
+    border:4px solid var(--neon-cyan); display:flex;align-items:center;justify-content:center;
+    background:#000;font-weight:900;font-size:20px;
+  }
+
+  .popup {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,0.85);
+    border:3px solid var(--neon-cyan);
+    padding:20px 24px; border-radius:12px;
+    text-align:center; z-index:30; display:none; min-width:260px;
+  }
   .popup.show{ display:block; animation:pop .24s ease-out; }
   @keyframes pop { from { transform:translate(-50%,-54%) scale(.98); opacity:0 } to { transform:translate(-50%,-50%) scale(1); opacity:1 } }
+
   .popup h2{ color:var(--neon-cyan); margin:0 0 8px 0; font-size:18px; letter-spacing:1px; }
   .popup p{ margin:0; color:#cfeaff; font-size:14px; }
 
-  .meta { margin-top:8px; color:#264; font-size:12px; opacity:0.6; text-align:center; width:100%; max-width:520px; }
-  @media(min-width:900px){ .frame { width:520px; height:640px; } }
-
-  /* hide title when playing */
-  .title-hidden { transform: translateY(-30px); opacity:0; pointer-events:none; }
-
+  .meta {
+    margin-top:8px; color:#0ff; font-size:13px; opacity:0.85; text-align:center;
+    width:100%; max-width:520px;
+  }
 </style>
 </head>
 <body>
   <div class="app" id="app">
-    <div class="title-wrap">
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <div id="title" class="title">GRIDLE</div>
-        <div id="streakDisplay" class="streak" aria-live="polite">🔥 Streak: 0</div>
-      </div>
-    </div>
-
+    <div class="title">GRIDLE</div>
     <div class="frame" id="game-frame">
       <canvas id="game" class="game"></canvas>
-
       <div class="popup" id="endPopup" role="dialog" aria-live="polite">
         <h2 id="popupTitle">You did it!</h2>
         <p id="popupBody">Time: 00:00.000</p>
@@ -141,588 +122,181 @@
 
     <div class="controls" id="controls">
       <button id="playBtn" class="button">Play Today's Challenge</button>
-
       <div id="inGameControls" class="touch-controls hidden" aria-hidden="true">
         <div id="turnLeft" class="control-rect left" role="button" aria-label="turn left"><div class="triangle"></div></div>
         <div id="discBtn" class="disc-button" role="button" aria-label="throw disc">●</div>
         <div id="turnRight" class="control-rect right" role="button" aria-label="turn right"><div class="triangle"></div></div>
       </div>
-
       <button id="shareBtn" class="button hidden">Share Today's Challenge</button>
     </div>
 
-    <div class="meta">Gridle — Daily Grid Challenge. Central Time reset at midnight. Controls: arrows/WASD or tap/swipe. Space or circle to throw disc.</div>
+    <div class="meta">Gridle — Daily Grid Challenge. Controls: Left/Right or tap arrows. Space / disc button to throw.</div>
   </div>
 
 <script>
-/*
-  GRIDLE — Updated version
-  - Floating neon title & streak display
-  - Bigger grid sizes and longer matches
-  - Smart bots (1-tile lookahead avoiding walls, own trail, and user trail)
-  - Disc spawn fixed (one cell ahead) and faster bounce physics
-  - Simplified emoji share (downsampled)
-  - Streak memory: win increments or starts; lose resets to 0
-*/
+// ---------- Utilities ----------
+function mulberry32(a){return function(){var t=a+=0x6D2B79F5|0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}}
+function getCentralDateKey(now=new Date()){try{const df=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'});const parts=df.formatToParts(now);return `${parts.find(p=>p.type==='year').value}-${parts.find(p=>p.type==='month').value}-${parts.find(p=>p.type==='day').value}`}catch(e){const ms=now.getTime()+(now.getTimezoneOffset()*60000);const centralMs=ms-(6*60*60000);return new Date(centralMs).toISOString().slice(0,10)}}
 
-//// Utilities
-function mulberry32(a){ return function(){ var t = a += 0x6D2B79F5|0; t = Math.imul(t ^ t>>>15, t | 1); t ^= t + Math.imul(t ^ t>>>7, t | 61); return ((t ^ t>>>14) >>> 0) / 4294967296; } }
-
-function getCentralDateKey(now = new Date()){
-  try {
-    const df = new Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago', year:'numeric', month:'2-digit', day:'2-digit'});
-    const parts = df.formatToParts(now);
-    const y = parts.find(p=>p.type==='year').value;
-    const m = parts.find(p=>p.type==='month').value;
-    const d = parts.find(p=>p.type==='day').value;
-    return `${y}-${m}-${d}`;
-  } catch(e){
-    const ms = now.getTime() + (now.getTimezoneOffset()*60000);
-    const centralMs = ms - (6*60*60000);
-    const c = new Date(centralMs);
-    return c.toISOString().slice(0,10);
-  }
-}
-
-function dateKeyToDate(dateKey){
-  const [y,m,d] = dateKey.split('-').map(s=>parseInt(s,10));
-  return new Date(Date.UTC(y, m-1, d));
-}
-
-//// Daily setup (deterministic)
+// ---------- Daily Setup ----------
 function dailySeedFromDateKey(dateKey){
-  const parts = dateKey.split('-').map(s=>parseInt(s,10));
-  const d = new Date(parts[0], parts[1]-1, parts[2]);
-  const start = new Date(parts[0],0,0);
-  const dayOfYear = Math.floor((d - start)/(1000*60*60*24));
-  const index360 = dayOfYear % 360;
-  const base = parts[0]*1000 + index360;
-  return (base * 2654435761) >>> 0;
+  const [y,m,d]=dateKey.split('-').map(s=>parseInt(s,10));
+  const dayOfYear=((()=>{const dt=new Date(y,m-1,d);const start=new Date(y,0,0);return Math.floor((dt-start)/(1000*60*60*24));})());
+  const index360=dayOfYear%360; const base=y*1000+index360;
+  return (base*2654435761)>>>0;
 }
 
 function makeDailySetup(dateKey){
-  const seed = dailySeedFromDateKey(dateKey);
-  const rng = mulberry32(seed);
-  // larger grids for longer matches
-  const sizes = [20,22,24,26,28,30];
-  const gridSize = sizes[Math.floor(rng()*sizes.length)];
-
-  const maxBots = Math.max(1, Math.floor(gridSize/4));
-  const botsCount = Math.floor(rng()*Math.min(6, maxBots)) + 1;
-
-  // longer max ticks to allow more playtime
-  const maxTicks = gridSize * gridSize * 8;
-
-  const bots = [];
+  const seed=dailySeedFromDateKey(dateKey); const rng=mulberry32(seed);
+  const sizes=[16,18,20,22,24]; const gridSize=sizes[Math.floor(rng()*sizes.length)];
+  const maxBots=Math.max(1, Math.floor(gridSize/4)); const botsCount=Math.floor(rng()*Math.min(6,maxBots))+1;
+  const speed=1; const maxTicks=gridSize*gridSize*6;
+  const bots=[];
   for(let b=0;b<botsCount;b++){
-    const edge = b % 4;
-    const margin = 1;
-    let x,y,dir;
-    if(edge===0){ x = margin; y = 1 + Math.floor(rng()*(gridSize-2)); dir = 0; }
-    if(edge===1){ x = gridSize-2; y = 1 + Math.floor(rng()*(gridSize-2)); dir = 2; }
-    if(edge===2){ y = margin; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 1; }
-    if(edge===3){ y = gridSize-2; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 3; }
-
-    // bot "aggression" influences chance to fire disk & randomness
-    const aggression = rng(); // 0..1
-    const willFire = rng() < 0.5;
-
-    bots.push({ id:`bot${b}`, x,y, dir, aggression, willFire, disc:null, alive:true });
+    const edge=b%4; let x,y,dir; const margin=1;
+    if(edge===0){ x=margin; y=1+Math.floor(rng()*(gridSize-2)); dir=0;}
+    if(edge===1){ x=gridSize-2; y=1+Math.floor(rng()*(gridSize-2)); dir=2;}
+    if(edge===2){ y=margin; x=1+Math.floor(rng()*(gridSize-2)); dir=1;}
+    if(edge===3){ y=gridSize-2; x=1+Math.floor(rng()*(gridSize-2)); dir=3;}
+    const style=Math.floor(rng()*3); const willFire=rng()<0.5;
+    const script=[]; for(let t=0;t<maxTicks;t++){ const p= style===0?(rng()<0.08?(rng()<0.5?-1:1):0):style===1?(rng()<0.12?(rng()<0.5?-1:1):0):(rng()<0.18?(rng()<0.5?-1:1):0); script.push(p);}
+    const discTimes=[]; if(willFire){for(let i=0;i<maxTicks;i++){if(rng()<0.03) discTimes.push(i);}}
+    bots.push({x,y,dir,script,style,discTimes,tick:0,color:Math.floor(rng()*360)});
   }
-
-  const userStart = { x: Math.floor(gridSize/2), y: Math.floor(gridSize*0.75), dir: 3 };
-
-  return { seed, gridSize, bots, userStart, maxTicks };
+  return {N:gridSize,bots,maxTicks};
 }
 
-//// Game core
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d', {alpha:false});
-function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); }
-window.addEventListener('resize', resizeCanvas);
+// ---------- Game State ----------
+let gameState=null, ctx=null, canvas=null, gameTick=0;
+let streak=Number(localStorage.getItem('gridleStreak')||0);
 
-let gameState = null;
-let animationId = null;
-let lastTickTime = 0;
-const TICK_MS = 100; // faster tick for smoother movement (tune)
+// ---------- Init ----------
+function initGame(){
+  const dateKey=getCentralDateKey();
+  const setup=makeDailySetup(dateKey); const {N,bots,maxTicks}=setup;
 
-const DIRS = [ {dx:1,dy:0}, {dx:0,dy:1}, {dx:-1,dy:0}, {dx:0,dy:-1} ];
+  canvas=document.getElementById('game'); canvas.width=N; canvas.height=N;
+  ctx=canvas.getContext('2d');
 
-function initGameForDateKey(dateKey){
-  const setup = makeDailySetup(dateKey);
-  const N = setup.gridSize;
-  const grid = Array.from({length:N}, ()=>Array(N).fill(0));
+  const grid=Array.from({length:N},()=>Array(N).fill(null));
+  const user={x:Math.floor(N/2),y:Math.floor(N/2),dir:0,alive:true};
+  grid[user.y][user.x]='user';
 
-  const user = { id:'user', x: setup.userStart.x, y: setup.userStart.y, dir: setup.userStart.dir, color:'cyan', alive:true, discCount:1, disc:null, trail:'user' };
-  grid[user.y][user.x] = 'user';
-
-  const bots = setup.bots.map(b=>({ id:b.id, x:b.x, y:b.y, dir:b.dir, aggression:b.aggression, willFire:b.willFire, disc:null, alive:true, trail:b.id }));
-  bots.forEach(b=> grid[b.y][b.x] = b.id);
-
-  gameState = { dateKey, setup, grid, N, user, bots, running:false, tick:0, startTime:0, endTime:0, finished:false, result:'' };
-  resizeCanvas();
-  renderOnce();
-  updateStreakDisplay();
-}
-
-/* rendering */
-function renderOnce(){
-  if(!gameState) return;
-  const {N, grid, user} = gameState;
-  const w = canvas.width, h = canvas.height;
-  const pad = Math.floor(10 * devicePixelRatio);
-  const areaW = w - pad*2, areaH = h - pad*2;
-  const tile = Math.floor(Math.min(areaW / N, areaH / N));
-  const viewW = tile * N, viewH = tile * N;
-  const ox = Math.floor((w - viewW)/2), oy = Math.floor((h - viewH)/2);
-
-  ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
-  ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
-// draw neon grid lines
-ctx.strokeStyle = 'rgba(0,240,255,0.2)'; // subtle cyan
-ctx.lineWidth = Math.max(1, tile*0.05);
-for(let r=0;r<=N;r++){
-  ctx.beginPath();
-  ctx.moveTo(ox, oy + r*tile);
-  ctx.lineTo(ox + N*tile, oy + r*tile);
-  ctx.stroke();
-}
-for(let c=0;c<=N;c++){
-  ctx.beginPath();
-  ctx.moveTo(ox + c*tile, oy);
-  ctx.lineTo(ox + c*tile, oy + N*tile);
-  ctx.stroke();
-}
-  for(let r=0;r<N;r++){
-    for(let c=0;c<N;c++){
-      const val = grid[r][c];
-      const px = ox + c*tile, py = oy + r*tile;
-      if(val === 0) { ctx.fillStyle = '#010101'; ctx.fillRect(px,py,tile,tile); }
-      else {
-        const col = (val === 'user') ? 'rgba(0,240,255,0.98)' : 'rgba(255,43,43,0.98)';
-        ctx.fillStyle = col; ctx.fillRect(px,py,tile,tile);
-      }
-    }
-  }
-
-  function drawBike(x,y,color){
-    const px = ox + x*tile, py = oy + y*tile;
-    ctx.fillStyle = color; ctx.fillRect(px+tile*0.15, py+tile*0.15, tile*0.7, tile*0.7);
-    ctx.fillStyle = '#fff'; ctx.fillRect(px+tile*0.42, py+tile*0.08, tile*0.16, tile*0.16);
-  }
-
-  if(gameState.user.alive) drawBike(gameState.user.x, gameState.user.y, 'rgba(0,240,255,1)');
-  gameState.bots.forEach(b=>{ if(b.alive) drawBike(b.x, b.y, 'rgba(255,43,43,1)'); });
-
-  const discs = [];
-  if(gameState.user.disc) discs.push(gameState.user.disc);
-  gameState.bots.forEach(b=>{ if(b.disc) discs.push(b.disc); });
-  discs.forEach(d=>{
-    const cx = ox + d.x * tile + tile/2;
-    const cy = oy + d.y * tile + tile/2;
-    ctx.beginPath();
-ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*2); // bigger circle
-ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
-ctx.fill();
-  });
-}
-
-/* movement utils */
-function turnDir(dir, cmd){ if(cmd===-1) return (dir+3)%4; if(cmd===1) return (dir+1)%4; return dir; }
-
-function createDisc(ownerId, startX, startY, dir){
-  // spawn one cell ahead if possible
-  const dx = DIRS[dir].dx, dy = DIRS[dir].dy;
-  const spawnX = startX + dx;
-  const spawnY = startY + dy;
-  const vx = dx * 1.6; // speed multiplier (tune)
-  const vy = dy * 1.6;
-  // Keep fractional position centered on cells
-  const baseX = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnX + 0.0 : startX + 0.5;
-  const baseY = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnY + 0.0 : startY + 0.5;
-  return { owner: ownerId, x: baseX + 0.5, y: baseY + 0.5, vx, vy };
-}
-
-/* check cell occupancy helper */
-function cellOccupied(grid, x, y){
-  if(x < 0 || x >= grid[0].length || y < 0 || y >= grid.length) return true;
-  return grid[y][x] !== 0;
-}
-
-/* Bot decision: avoid own trail, user's trail, and walls via 1-tile lookahead */
-function botChooseDir(bot, gameState){
-  const {grid, N, user} = gameState;
-  const tries = [];
-  // preference order: straight, left, right (but jitter via aggression)
-  // compute possible directions
-  const straight = bot.dir;
-  const left = (bot.dir + 3) % 4;
-  const right = (bot.dir + 1) % 4;
-  // order can be shuffled slightly based on aggression for variety
-  const order = [straight, left, right];
-  if(Math.random() < bot.aggression * 0.25){
-    // flip to make more jitter
-    order.reverse();
-  }
-
-  for(const d of order){
-    const nx = bot.x + DIRS[d].dx;
-    const ny = bot.y + DIRS[d].dy;
-    // check immediate collision
-    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
-    // check the target cell: if it's empty or is occupied by someone about to leave? conservatively require empty
-    if(grid[ny][nx] !== 0) continue;
-    // check two-step lookahead: ensure next cell after stepping won't be a dead-end (i.e., not immediately trapped by walls/trails)
-    let safe = false;
-    for(let dd=0; dd<4; dd++){
-      const nnx = nx + DIRS[dd].dx;
-      const nny = ny + DIRS[dd].dy;
-      if(nnx < 0 || nnx >= N || nny < 0 || nny >= N) continue;
-      if(grid[nny][nnx] === 0) { safe = true; break; }
-    }
-    if(!safe) {
-      // if aggression high, they may accept dead-end occasionally
-      if(bot.aggression < 0.6) continue;
-    }
-    // also avoid user's immediate location (prefer steering away if user is adjacent)
-    if(nx === user.x && ny === user.y) continue;
-    return d;
-  }
-  // if none found, try any direction that is not immediate collision
-  for(let d=0; d<4; d++){
-    const nx = bot.x + DIRS[d].dx, ny = bot.y + DIRS[d].dy;
-    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
-    if(grid[ny][nx] !== 0) continue;
-    return d;
-  }
-  // no safe move -> return current dir (will die next step when collision is evaluated)
-  return bot.dir;
-}
-
-/* Step Tick */
-function stepTick(){
-  if(!gameState || gameState.finished) return;
-  const {N, grid, user, bots, setup} = gameState;
-
-  // USER movement
-  if(user.alive){
-    const nd = DIRS[user.dir];
-    const nx = user.x + nd.dx, ny = user.y + nd.dy;
-    if(nx < 0 || nx >= N || ny < 0 || ny >= N){ user.alive = false; }
-    else if(grid[ny][nx] !== 0){ user.alive = false; }
-    else { grid[user.y][user.x] = 'user'; user.x = nx; user.y = ny; grid[user.y][user.x] = 'user'; }
-  }
-
-  // BOTS decide and move
-  for(const bot of bots){
-    if(!bot.alive) continue;
-    const newDir = botChooseDir(bot, gameState);
-    bot.dir = newDir;
-    const nd = DIRS[bot.dir];
-    const nx = bot.x + nd.dx, ny = bot.y + nd.dy;
-    if(nx < 0 || nx >= N || ny < 0 || ny >= N || grid[ny][nx] !== 0){
-      // collided -> die
-      bot.alive = false;
-      continue;
-    } else {
-      grid[bot.y][bot.x] = bot.id;
-      bot.x = nx; bot.y = ny;
-      grid[bot.y][bot.x] = bot.id;
-    }
-    // bot disc firing (simple probabilistic based on aggression)
-    if(bot.willFire && !bot.disc && Math.random() < (0.012 + bot.aggression*0.01)){
-      bot.disc = createDisc(bot.id, bot.x, bot.y, bot.dir);
-    }
-  }
-
-  // Move discs (user + bots)
-  const allDiscs = [];
-  if(user.disc) allDiscs.push({disc:user.disc, owner:user});
-  bots.forEach(b=>{ if(b.disc) allDiscs.push({disc:b.disc, owner:b}); });
-
-  for(const entry of allDiscs){
-    const d = entry.disc;
-    // move (higher speed)
-    d.x += d.vx * 0.6;
-    d.y += d.vy * 0.6;
-    // wall bounces
-    if(d.x <= 0.5){ d.x = 0.5; d.vx *= -1; }
-    if(d.x >= N-0.5){ d.x = N-0.5; d.vx *= -1; }
-    if(d.y <= 0.5){ d.y = 0.5; d.vy *= -1; }
-    if(d.y >= N-0.5){ d.y = N-0.5; d.vy *= -1; }
-
-    const cx = Math.floor(d.x), cy = Math.floor(d.y);
-    if(cx < 0 || cx >= N || cy < 0 || cy >= N) continue;
-
-    // disc hitting a bike
-    if(entry.owner !== user && user.alive && cx === user.x && cy === user.y){
-      // bot disc hit user -> bot's disc removed, user reload
-      entry.owner.disc = null;
-      user.discCount = Math.min(1, user.discCount + 1);
-      continue;
-    }
-    if(entry.owner === user){
-      // user disc can hit bots
-      for(const bot of bots){
-        if(bot.alive && cx === bot.x && cy === bot.y){
-          bot.alive = false;
-          user.disc = null;
-        }
-      }
-      if(cx === user.x && cy === user.y){
-        // user caught their disc -> reload
-        user.disc = null;
-        user.discCount = Math.min(1, user.discCount + 1);
-      }
-    }
-  }
-
-  // disc vs trail collisions - bounce on non-empty grid
-  for(const entry of allDiscs){
-    const d = entry.disc;
-    if(!d) continue;
-    const cx = Math.floor(d.x), cy = Math.floor(d.y);
-    if(cx < 0 || cx >= N || cy < 0 || cy >= N) continue;
-    const cell = grid[cy][cx];
-    const ownerId = entry.owner.id;
-    if(cell !== 0){
-      if(cell !== ownerId && (cell === 'user' || typeof cell === 'string' && cell.startsWith('bot'))){
-        // hit bike of another -> eliminate appropriately
-        if(cell === 'user'){
-          entry.owner.disc = null;
-          user.discCount = Math.min(1, user.discCount + 1);
-        } else {
-          const target = gameState.bots.find(b=>b.id === cell);
-          if(target) target.alive = false;
-          entry.owner.disc = null;
-        }
-      } else {
-        // bounce off the trail/wall by inverting velocity
-        d.vx *= -1;
-        d.vy *= -1;
-      }
-    }
-  }
-
-  // cleanup null discs
-  if(user.disc === null) user.disc = null;
-  gameState.bots.forEach(b=>{ if(b.disc === null) b.disc = null; });
-
-  // check end conditions
-  const aliveBots = gameState.bots.filter(b=>b.alive);
-  if(!user.alive){ endGame('lose'); return; }
-  if(aliveBots.length === 0){ endGame('win'); return; }
-
-  gameState.tick++;
-  if(gameState.tick > setup.maxTicks){ endGame('lose'); return; }
-}
-
-function gameLoopStep(now){
-  if(!gameState || !gameState.running) return;
-  if(!lastTickTime) lastTickTime = now;
-  const dt = now - lastTickTime;
-  if(dt >= TICK_MS){
-    stepTick(); renderOnce(); lastTickTime = now;
-  }
-  animationId = requestAnimationFrame(gameLoopStep);
-}
-
-function startGame(){
-  if(!gameState) return;
-  if(gameState.running) return;
-  // hide title visually
-  document.getElementById('title').classList.add('title-hidden');
-  gameState.running = true; gameState.tick = 0; gameState.startTime = performance.now(); lastTickTime = 0;
-  animationId = requestAnimationFrame(gameLoopStep);
-}
-
-function pauseGame(){ if(animationId) cancelAnimationFrame(animationId); animationId = null; gameState.running = false; }
-
-//// Streak storage
-function loadStreak(){
-  const raw = localStorage.getItem('gridle_streak');
-  return raw ? JSON.parse(raw) : { lastDate: null, streak: 0, lastResult: null };
-}
-function saveStreak(obj){ localStorage.setItem('gridle_streak', JSON.stringify(obj)); }
-function updateStreakOnResult(result, dateKey){
-  const today = dateKey;
-  const s = loadStreak();
-  if(result === 'win'){
-    if(s.lastDate){
-      const last = dateKeyToDate(s.lastDate);
-      const t = dateKeyToDate(today);
-      const diffDays = Math.round((t - last)/(1000*60*60*24));
-      s.streak = (diffDays === 1) ? (s.streak + 1) : 1;
-    } else {
-      s.streak = 1;
-    }
-    s.lastDate = today; s.lastResult = 'win';
-  } else if(result === 'lose'){
-    s.streak = 0;
-    s.lastDate = today; s.lastResult = 'lose';
-  }
-  saveStreak(s);
-  updateStreakDisplay();
-}
-function updateStreakDisplay(){
-  const s = loadStreak();
-  document.getElementById('streakDisplay').textContent = `🔥 Streak: ${s.streak}`;
-}
-
-/* end game */
-const endPopup = document.getElementById('endPopup');
-const popupTitle = document.getElementById('popupTitle');
-const popupBody = document.getElementById('popupBody');
-
-function showEndPopup(result, timeMs){
-  if(result === 'win'){ popupTitle.textContent = "You won today's Grid!"; popupBody.textContent = `Time: ${formatTimeMs(timeMs)}`; }
-  else { popupTitle.textContent = "You lost the grid"; popupBody.textContent = `Better luck tomorrow.`; }
-  endPopup.classList.add('show');
-  document.getElementById('inGameControls').classList.add('hidden');
+  gameState={N,grid,user,bots,maxTicks,tick:0,gameOver:false,dateKey};
   document.getElementById('playBtn').classList.add('hidden');
+  document.getElementById('inGameControls').classList.remove('hidden');
+  document.getElementById('shareBtn').classList.add('hidden');
+  requestAnimationFrame(gameLoop);
 }
 
-function endGame(result){
-  pauseGame();
-  gameState.finished = true; gameState.result = result; gameState.endTime = performance.now();
-  const timeMs = Math.max(0, gameState.endTime - gameState.startTime);
-  // persist daily result
-  const key = `gridle_result_${gameState.dateKey}`;
-  localStorage.setItem(key, JSON.stringify({ result, timeMs, dateKey: gameState.dateKey, playedAt: Date.now() }));
-  updateStreakOnResult(result, gameState.dateKey);
-  // show popup & toggle share if win
-  showEndPopup(result, timeMs);
-  toggleShareButton(result === 'win');
-}
+// ---------- Game Loop ----------
+function gameLoop(){
+  if(!gameState) return;
+  const {N,grid,user,bots,maxTicks}=gameState;
+  if(gameState.gameOver) return;
 
-/* Controls & UI wiring */
-const playBtn = document.getElementById('playBtn');
-const inGameControls = document.getElementById('inGameControls');
-const turnLeft = document.getElementById('turnLeft');
-const turnRight = document.getElementById('turnRight');
-const discBtn = document.getElementById('discBtn');
-const shareBtn = document.getElementById('shareBtn');
+  // --- user movement handled by key/tap ---
 
-function showStage(stage){ playBtn.classList.toggle('hidden', stage !== 'play'); inGameControls.classList.toggle('hidden', stage !== 'controls'); shareBtn.classList.toggle('hidden', stage !== 'share'); }
-function toggleShareButton(show){ if(show) showStage('share'); else showStage('play'); }
+  // --- bots AI ---
+  bots.forEach(bot=>{
+    if(bot.tick>=bot.script.length) return;
+    const turn=bot.script[bot.tick]; bot.dir=(bot.dir+turn+4)%4;
+    const [nx,ny]=nextPos(bot.x,bot.y,bot.dir);
+    if(inBounds(nx,ny,N) && !grid[ny][nx]){ bot.x=nx; bot.y=ny; grid[ny][nx]='bot'+bot.tick; }
+    bot.tick++;
+  });
 
-playBtn.addEventListener('click', ()=>{
-  const key = `gridle_result_${gameState.dateKey}`;
-  if(localStorage.getItem(key)){
-    const rec = JSON.parse(localStorage.getItem(key));
-    showEndPopup(rec.result, rec.timeMs);
-    toggleShareButton(rec.result === 'win');
+  // --- game over check ---
+  if(!user.alive || gameState.tick>maxTicks){
+    endGame(user.alive);
     return;
   }
-  startGame(); showStage('controls');
-});
 
-// on-screen touch controls
-turnLeft.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 3)%4; });
-turnRight.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 1)%4; });
+  // --- render ---
+  drawGrid();
+  gameState.tick++;
+  requestAnimationFrame(gameLoop);
+}
 
-discBtn.addEventListener('click', ()=>{
-  if(!gameState || !gameState.user.alive) return;
-  if(gameState.user.disc || gameState.user.discCount <= 0) return;
-  gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
-  gameState.user.discCount = 0;
-});
+function nextPos(x,y,dir){
+  if(dir===0) return [x-1,y]; if(dir===1) return [x,y-1];
+  if(dir===2) return [x+1,y]; if(dir===3) return [x,y+1]; return [x,y];
+}
+function inBounds(x,y,N){ return x>=0&&x<N&&y>=0&&y<N; }
 
-// keyboard + WASD controls + space
-window.addEventListener('keydown', (e)=>{
-  if(!gameState || !gameState.user.alive) return;
-  if(e.code === 'ArrowLeft' || e.code === 'KeyA') { gameState.user.dir = (gameState.user.dir + 3)%4; }
-  if(e.code === 'ArrowRight' || e.code === 'KeyD') { gameState.user.dir = (gameState.user.dir + 1)%4; }
-  if(e.code === 'Space') {
-    if(!gameState.user.disc && gameState.user.discCount > 0){
-      gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
-      gameState.user.discCount = 0;
+function drawGrid(){
+  const {grid,N}=gameState;
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,N,N);
+
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      if(grid[r][c]===null) continue;
+      if(grid[r][c]==='user') ctx.fillStyle='#0ff';
+      else ctx.fillStyle='#f22';
+      ctx.fillRect(c,r,1,1);
     }
   }
-});
 
-// swipe controls for mobile (basic)
-let touchStartX = 0, touchStartY = 0;
-window.addEventListener('touchstart', (e)=>{ const t = e.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; });
-window.addEventListener('touchend', (e)=>{
-  const t = e.changedTouches[0];
-  const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
-  if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
-  if(Math.abs(dx) > Math.abs(dy)){
-    if(dx > 0) gameState.user.dir = 0; else gameState.user.dir = 2;
-  } else {
-    if(dy > 0) gameState.user.dir = 1; else gameState.user.dir = 3;
+  // brighter grid lines
+  ctx.strokeStyle='rgba(0,255,255,0.2)';
+  ctx.lineWidth=0.2;
+  for(let i=0;i<=N;i++){
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,N); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(N,i); ctx.stroke();
   }
-});
+}
 
-/* Share: simplified emoji grid downsampled */
-function buildEmojiGrid(){
-  if(!gameState) return '';
-  const {N, grid} = gameState;
-  // downsample so width ~ 12 characters for share
-  const target = 12;
-  const step = Math.ceil(N / target);
-  const black = '⬛', blue = '🟦', red = '🟥';
-  const lines = [];
-  for(let r=0;r<N;r+=step){
-    let row = '';
-    for(let c=0;c<N;c+=step){
-      const val = grid[r][c];
-      if(val === 0) row += black;
-      else if(val === 'user') row += blue;
-      else row += red;
-      if(row.length >= target) break;
+// ---------- End Game ----------
+function endGame(won){
+  gameState.gameOver=true;
+  const popup=document.getElementById('endPopup');
+  popup.querySelector('#popupTitle').textContent=won?'You Won!':'Game Over';
+  popup.querySelector('#popupBody').textContent=won?`Congrats!`:'Better luck next time.';
+  popup.classList.add('show');
+
+  // streak update
+  if(won) streak++; else streak=0;
+  localStorage.setItem('gridleStreak',streak);
+
+  document.getElementById('shareBtn').classList.remove('hidden');
+  document.getElementById('inGameControls').classList.add('hidden');
+}
+
+// ---------- Share as tiny PNG ----------
+function buildGridSnapshot(){
+  if(!gameState) return null;
+  const {N,grid}=gameState;
+  const off=document.createElement('canvas');
+  off.width=N; off.height=N; const ctxOff=off.getContext('2d');
+  ctxOff.fillStyle='#000'; ctxOff.fillRect(0,0,N,N);
+
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const val=grid[r][c];
+      if(val==='user') ctxOff.fillStyle='#0ff';
+      else if(val?.startsWith('bot')) ctxOff.fillStyle='#f22';
+      else ctxOff.fillStyle='#000';
+      ctxOff.fillRect(c,r,1,1);
     }
-    lines.push(row);
   }
-  return lines.join('\n');
+
+  ctxOff.strokeStyle='rgba(0,255,255,0.3)';
+  ctxOff.lineWidth=0.2;
+  for(let i=0;i<=N;i++){
+    ctxOff.beginPath(); ctxOff.moveTo(i,0); ctxOff.lineTo(i,N); ctxOff.stroke();
+    ctxOff.beginPath(); ctxOff.moveTo(0,i); ctxOff.lineTo(N,i); ctxOff.stroke();
+  }
+
+  return off.toDataURL('image/png');
 }
 
-shareBtn.addEventListener('click', ()=>{
-  if(!gameState) return;
-  const key = `gridle_result_${gameState.dateKey}`;
-  const rec = localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
-  const timeMs = rec ? rec.timeMs : (gameState.endTime ? (gameState.endTime-gameState.startTime) : 0);
-  const timeStr = formatTimeMs(timeMs);
-  const message = `I completed today's challenge of the grid in ${timeStr}. Try it now at guildcoder.github.io/girdle!\n\n` + buildEmojiGrid();
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-  if(isMobile){
-    window.location.href = `sms:?&body=${encodeURIComponent(message)}`;
-  } else {
-    const subject = encodeURIComponent("I completed today's Gridle!");
-    window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
-  }
+document.getElementById('playBtn').addEventListener('click',initGame);
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  const snapshot=buildGridSnapshot();
+  if(!snapshot) return;
+  const win=window.open();
+  win.document.write(`<h3>Today's Gridle Challenge</h3><img src="${snapshot}" style="image-rendering:pixelated;width:200px;height:auto;">`);
 });
-
-/* format time */
-function formatTimeMs(ms){
-  const s = Math.floor(ms/1000);
-  const mm = Math.floor(s/60);
-  const ss = s % 60;
-  const mss = Math.floor(ms % 1000);
-  return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}.${String(mss).padStart(3,'0')}`;
-}
-
-/* Boot + remember-me play restriction + show streak on load */
-function boot(){
-  const dateKey = getCentralDateKey(new Date());
-  initGameForDateKey(dateKey);
-
-  const key = `gridle_result_${dateKey}`;
-  const rec = localStorage.getItem(key);
-  if(rec){
-    const r = JSON.parse(rec);
-    showEndPopup(r.result, r.timeMs);
-    toggleShareButton(r.result === 'win');
-  } else {
-    showStage('play');
-  }
-}
-boot();
-
-/* expose for debugging */
-window._gridle = { makeDailySetup, initGameForDateKey, gameState, getCentralDateKey, boot };
-
 </script>
 </body>
 </html>
