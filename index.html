@@ -295,29 +295,51 @@ for (let r = 0; r < N; r++) {
   }
 }
 
-// THEN, draw neon grid lines on top
-ctx.strokeStyle = 'rgba(0,240,255,0.3)'; // subtle cyan
-ctx.lineWidth = Math.max(1, tile * 0.05);
+  // Grid background with inner neon lines
+  ctx.fillStyle='#010101'; ctx.fillRect(0,0,N*tile,N*tile);
+  ctx.strokeStyle='rgba(0,240,255,0.2)'; ctx.lineWidth=1;
+  for(let i=0;i<=N;i++){
+    ctx.beginPath();
+    ctx.moveTo(i*tile,0); ctx.lineTo(i*tile,N*tile); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0,i*tile); ctx.lineTo(N*tile,i*tile); ctx.stroke();
+  const {N, grid, user} = gameState;
+  const w = canvas.width, h = canvas.height;
+  const pad = Math.floor(10 * devicePixelRatio);
+  const areaW = w - pad*2, areaH = h - pad*2;
+  const tile = Math.floor(Math.min(areaW / N, areaH / N));
+  const viewW = tile * N, viewH = tile * N;
+  const ox = Math.floor((w - viewW)/2), oy = Math.floor((h - viewH)/2);
 
-// Add neon glow
-ctx.shadowBlur = 8;            // how strong the glow is
-ctx.shadowColor = 'cyan';      // glow color
-
-// horizontal lines
-for (let r = 0; r <= N; r++) {
+  ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
+// draw neon grid lines
+ctx.strokeStyle = 'rgba(0,240,255,0.2)'; // subtle cyan
+ctx.lineWidth = Math.max(1, tile*0.05);
+for(let r=0;r<=N;r++){
   ctx.beginPath();
-  ctx.moveTo(ox, oy + r * tile);
-  ctx.lineTo(ox + N * tile, oy + r * tile);
+  ctx.moveTo(ox, oy + r*tile);
+  ctx.lineTo(ox + N*tile, oy + r*tile);
   ctx.stroke();
 }
-
-// vertical lines
-for (let c = 0; c <= N; c++) {
+for(let c=0;c<=N;c++){
   ctx.beginPath();
-  ctx.moveTo(ox + c * tile, oy);
-  ctx.lineTo(ox + c * tile, oy + N * tile);
+  ctx.moveTo(ox + c*tile, oy);
+  ctx.lineTo(ox + c*tile, oy + N*tile);
   ctx.stroke();
 }
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const val = grid[r][c];
+      const px = ox + c*tile, py = oy + r*tile;
+      if(val === 0) { ctx.fillStyle = '#010101'; ctx.fillRect(px,py,tile,tile); }
+      else {
+        const col = (val === 'user') ? 'rgba(0,240,255,0.98)' : 'rgba(255,43,43,0.98)';
+        ctx.fillStyle = col; ctx.fillRect(px,py,tile,tile);
+      }
+    }
+  }
+
 
 // reset shadow so it doesn't affect other drawings
 ctx.shadowBlur = 0;
