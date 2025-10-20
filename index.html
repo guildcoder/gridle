@@ -69,7 +69,7 @@
     justify-content:center;
     padding:var(--frame-pad);
     border:4px solid rgba(0,255,255,0.06);
-    outline: 12px solid rgba(0,255,255,1);
+    outline: 8px solid rgba(0,255,255,1);
     overflow:hidden;
   }
 <!-- iOS Web App Settings -->
@@ -297,7 +297,7 @@ for (let r = 0; r < N; r++) {
 
   // Grid background with inner neon lines
   ctx.fillStyle='#010101'; ctx.fillRect(0,0,N*tile,N*tile);
-  ctx.strokeStyle='rgba(0,240,255,0.2)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(0,240,255,5)'; ctx.lineWidth=5;
   for(let i=0;i<=N;i++){
     ctx.beginPath();
     ctx.moveTo(i*tile,0); ctx.lineTo(i*tile,N*tile); ctx.stroke();
