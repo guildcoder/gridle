@@ -1,126 +1,140 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>GRIDLE</title>
-<link rel="manifest" href="/manifest.json">
-<style>
-  :root{
-    --bg:#000;
-    --neon-cyan:#00f0ff;
-    --neon-red:#ff2b2b;
-    --neon-blue:#00aaff;
-    --frame-pad:12px;
-    --font: 'Orbitron', system-ui, sans-serif;
-  }
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-.meta { 
-  margin-top:8px; 
-  color:#00f0ff; /* brighter neon cyan */ 
-  font-size:14px; 
-  font-weight:700; 
-  opacity:0.9; 
-  text-align:center; 
-  width:100%; 
-  max-width:520px; 
-}
-  html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
-  .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>GRIDLE</title>
 
-  /* floating title */
-  .title-wrap { position:relative; width:100%; display:flex; justify-content:center; pointer-events:none; margin-bottom:6px; }
-  .title {
-    font-family: 'Orbitron', monospace;
-    color:var(--neon-cyan);
-    letter-spacing:6px;
-    font-size:32px;
-    transform: translateY(0);
-    text-shadow:
-      0 0 8px rgba(0,240,255,0.75),
-      0 0 28px rgba(0,240,255,0.15);
-    opacity:1;
-    transition: transform .4s ease, opacity .35s ease;
-    font-style: italic;
-  }
-  .title.small { font-size:20px; letter-spacing:3px; color:#88faff; opacity:0.9; }
+  <!-- iOS Web App Settings -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gridle">
 
-  /* little streak counter under title */
-  .streak {
-    margin-top:6px;
-    color:var(--neon-cyan);
-    font-size:12px;
-    opacity:0.9;
-    text-shadow: 0 0 8px rgba(0,240,255,0.12);
-    pointer-events:none;
-  }
+  <!-- Fallback icons for iOS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
 
-  /* neon frame for game */
-  .frame {
-    width:min(96vw,520px);
-    height:calc(min(96vw,520px) * 1.2);
-    max-height:92vh;
-    background:#000;
-    border-radius:14px;
-    position:relative;
-    box-shadow:0 0 30px rgba(0,255,255,0.05);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:var(--frame-pad);
-    border:4px solid rgba(0,255,255,0.06);
-    outline: 4px solid rgba(0,255,255,0.12);
-    overflow:hidden;
-  }
-<!-- iOS Web App Settings -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gridle">
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json">
 
-<!-- Fallback icons for iOS -->
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png"
+  <style>
+    :root{
+      --bg:#000;
+      --neon-cyan:#00f0ff;
+      --neon-red:#ff2b2b;
+      --neon-blue:#00aaff;
+      --frame-pad:12px;
+      --font: 'Orbitron', system-ui, sans-serif;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-<!-- Manifest -->
-<link rel="manifest" href="manifest.json">
-  .frame::after{
-    content:'';
-    position:absolute;
-    inset:calc(var(--frame-pad) - 6px);
-    border-radius:12px;
-    box-shadow: 0 0 28px var(--neon-cyan), inset 0 0 10px rgba(0,255,255,0.04);
-    pointer-events:none;
-  }
+    .meta {
+      margin-top:8px;
+      color:#00f0ff; /* brighter neon cyan */
+      font-size:14px;
+      font-weight:700;
+      opacity:0.9;
+      text-align:center;
+      width:100%;
+      max-width:520px;
+    }
 
-  canvas.game { width:100%; height:100%; border-radius:8px; background:#000; display:block; image-rendering: pixelated; }
+    html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
+    .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
 
-  .controls { width:100%; max-width:520px; margin-top:10px; display:flex; justify-content:center; gap:12px; align-items:center; }
+    /* floating title */
+    .title-wrap { position:relative; width:100%; display:flex; justify-content:center; pointer-events:none; margin-bottom:6px; }
+    .title {
+      font-family: 'Orbitron', monospace;
+      color:var(--neon-cyan);
+      letter-spacing:6px;
+      font-size:32px;
+      transform: translateY(0);
+      text-shadow:
+        0 0 8px rgba(0,240,255,0.75),
+        0 0 28px rgba(0,240,255,0.15);
+      opacity:1;
+      transition: transform .4s ease, opacity .35s ease;
+      font-style: italic;
+    }
+    .title.small { font-size:20px; letter-spacing:3px; color:#88faff; opacity:0.9; }
 
-  .button { background:#000; border:2px solid var(--neon-cyan); color:var(--neon-cyan); padding:10px 14px; border-radius:10px; font-weight:700; min-width:160px; text-align:center; cursor:pointer; box-shadow: 0 6px 18px rgba(0,255,255,0.06); }
-  .button.hidden{ display:none; }
+    /* little streak counter under title */
+    .streak {
+      margin-top:6px;
+      color:var(--neon-cyan);
+      font-size:12px;
+      opacity:0.9;
+      text-shadow: 0 0 8px rgba(0,240,255,0.12);
+      pointer-events:none;
+    }
 
-  .touch-controls { display:flex; align-items:center; gap:12px; background:transparent; }
-  .control-rect { width:64px; height:48px; border-radius:8px; background:#000; border:3px solid var(--neon-cyan); display:flex; align-items:center; justify-content:center; position:relative; }
-  .control-rect .triangle{ width:0;height:0;border-style:solid;opacity:0.95; }
-  .left .triangle { border-width:12px 16px 12px 0;border-color:transparent var(--neon-cyan) transparent transparent; transform:translateX(-6px); }
-  .right .triangle { border-width:12px 0 12px 16px;border-color:transparent transparent transparent var(--neon-cyan); transform:translateX(6px); }
-  .disc-button { width:56px;height:56px;border-radius:50%; border:4px solid var(--neon-cyan); display:flex;align-items:center;justify-content:center; background:#000;font-weight:900;font-size:20px; }
+    /* neon frame for game */
+    .frame {
+      width:min(96vw,520px);
+      height:calc(min(96vw,520px) * 1.2);
+      max-height:92vh;
+      background:#000;
+      border-radius:14px;
+      position:relative;
+      box-shadow:0 0 30px rgba(0,255,255,0.05);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:var(--frame-pad);
+      border:4px solid rgba(255,255,255,0.06);
+      outline: 4px solid rgba(255,255,255,0.08);
+      overflow:hidden;
+    }
 
-  .popup { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.85); border:3px solid var(--neon-cyan); padding:20px 24px; border-radius:12px; text-align:center; z-index:30; display:none; min-width:260px; }
-  .popup.show{ display:block; animation:pop .24s ease-out; }
-  @keyframes pop { from { transform:translate(-50%,-54%) scale(.98); opacity:0 } to { transform:translate(-50%,-50%) scale(1); opacity:1 } }
-  .popup h2{ color:var(--neon-cyan); margin:0 0 8px 0; font-size:18px; letter-spacing:1px; }
-  .popup p{ margin:0; color:#cfeaff; font-size:14px; }
+    .frame::after{
+      content:'';
+      position:absolute;
+      inset:calc(var(--frame-pad) - 6px);
+      border-radius:12px;
+      box-shadow: 0 0 28px var(--neon-cyan), inset 0 0 10px rgba(0,255,255,0.04);
+      pointer-events:none;
+    }
 
-  .meta { margin-top:8px; color:#264; font-size:12px; opacity:1; text-align:center; width:100%; max-width:520px; }
-  @media(min-width:900px){ .frame { width:520px; height:640px; } }
+    /* canvas: pixelated, strong border to emphasize grid */
+    canvas.game {
+      width:100%;
+      height:100%;
+      border-radius:8px;
+      background:#000;
+      display:block;
+      image-rendering: pixelated;
+      box-sizing:border-box;
+      border:2px solid rgba(255,255,255,0.95); /* bright border around game area */
+    }
 
-  /* hide title when playing */
-  .title-hidden { transform: translateY(-30px); opacity:0; pointer-events:none; }
+    .controls { width:100%; max-width:520px; margin-top:10px; display:flex; justify-content:center; gap:12px; align-items:center; }
 
-</style>
+    .button { background:#000; border:2px solid var(--neon-cyan); color:var(--neon-cyan); padding:10px 14px; border-radius:10px; font-weight:700; min-width:160px; text-align:center; cursor:pointer; box-shadow: 0 6px 18px rgba(0,255,255,0.06); }
+    .button.hidden{ display:none; }
+
+    .touch-controls { display:flex; align-items:center; gap:12px; background:transparent; }
+    .control-rect { width:64px; height:48px; border-radius:8px; background:#000; border:3px solid var(--neon-cyan); display:flex; align-items:center; justify-content:center; position:relative; }
+    .control-rect .triangle{ width:0;height:0;border-style:solid;opacity:0.95; }
+    .left .triangle { border-width:12px 16px 12px 0;border-color:transparent var(--neon-cyan) transparent transparent; transform:translateX(-6px); }
+    .right .triangle { border-width:12px 0 12px 16px;border-color:transparent transparent transparent var(--neon-cyan); transform:translateX(6px); }
+    .disc-button { width:56px;height:56px;border-radius:50%; border:4px solid var(--neon-cyan); display:flex;align-items:center;justify-content:center; background:#000;font-weight:900;font-size:20px; }
+
+    .popup { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.85); border:3px solid var(--neon-cyan); padding:20px 24px; border-radius:12px; text-align:center; z-index:30; display:none; min-width:260px; }
+    .popup.show{ display:block; animation:pop .24s ease-out; }
+    @keyframes pop { from { transform:translate(-50%,-54%) scale(.98); opacity:0 } to { transform:translate(-50%,-50%) scale(1); opacity:1 } }
+    .popup h2{ color:var(--neon-cyan); margin:0 0 8px 0; font-size:18px; letter-spacing:1px; }
+    .popup p{ margin:0; color:#cfeaff; font-size:14px; }
+
+    .meta { margin-top:8px; color:#264; font-size:12px; opacity:1; text-align:center; width:100%; max-width:520px; }
+    @media(min-width:900px){ .frame { width:520px; height:640px; } }
+
+    /* hide title when playing */
+    .title-hidden { transform: translateY(-30px); opacity:0; pointer-events:none; }
+
+  </style>
 </head>
 <body>
   <div class="app" id="app">
@@ -158,12 +172,10 @@
 <script>
 /*
   GRIDLE — Updated version
-  - Floating neon title & streak display
-  - Bigger grid sizes and longer matches
-  - Smart bots (1-tile lookahead avoiding walls, own trail, and user trail)
-  - Disc spawn fixed (one cell ahead) and faster bounce physics
-  - Simplified emoji share (downsampled)
-  - Streak memory: win increments or starts; lose resets to 0
+  - Bright grid lines & border
+  - Space bar starts the game when not running (and still throws disc while playing)
+  - Apple icons include 512 size; head/tag cleanup
+  - Minor HTML/CSS validity fixes
 */
 
 //// Utilities
@@ -239,7 +251,7 @@ function makeDailySetup(dateKey){
 //// Game core
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d', {alpha:false});
-function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); }
+function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); renderOnce(); }
 window.addEventListener('resize', resizeCanvas);
 
 let gameState = null;
@@ -279,21 +291,29 @@ function renderOnce(){
 
   ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
   ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
-// draw neon grid lines
-ctx.strokeStyle = 'rgba(0,240,255,0.2)'; // subtle cyan
-ctx.lineWidth = Math.max(1, tile*0.05);
-for(let r=0;r<=N;r++){
-  ctx.beginPath();
-  ctx.moveTo(ox, oy + r*tile);
-  ctx.lineTo(ox + N*tile, oy + r*tile);
-  ctx.stroke();
-}
-for(let c=0;c<=N;c++){
-  ctx.beginPath();
-  ctx.moveTo(ox + c*tile, oy);
-  ctx.lineTo(ox + c*tile, oy + N*tile);
-  ctx.stroke();
-}
+
+  // bright white grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)'; // bright white
+  // smaller line width for crispness regardless of tile size
+  ctx.lineWidth = Math.max(1, Math.round(devicePixelRatio));
+  for(let r=0;r<=N;r++){
+    ctx.beginPath();
+    ctx.moveTo(ox + 0.5, oy + r*tile + 0.5);
+    ctx.lineTo(ox + N*tile + 0.5, oy + r*tile + 0.5);
+    ctx.stroke();
+  }
+  for(let c=0;c<=N;c++){
+    ctx.beginPath();
+    ctx.moveTo(ox + c*tile + 0.5, oy + 0.5);
+    ctx.lineTo(ox + c*tile + 0.5, oy + N*tile + 0.5);
+    ctx.stroke();
+  }
+
+  // draw a strong white border around the grid area
+  ctx.lineWidth = Math.max(2, Math.round(devicePixelRatio*1.2));
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.strokeRect(ox + 0.5, oy + 0.5, viewW, viewH);
+
   for(let r=0;r<N;r++){
     for(let c=0;c<N;c++){
       const val = grid[r][c];
@@ -322,9 +342,9 @@ for(let c=0;c<=N;c++){
     const cx = ox + d.x * tile + tile/2;
     const cy = oy + d.y * tile + tile/2;
     ctx.beginPath();
-ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*4); // bigger circle
-ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
-ctx.fill();
+    ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*2);
+    ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
+    ctx.fill();
   });
 }
 
@@ -355,25 +375,19 @@ function botChooseDir(bot, gameState){
   const {grid, N, user} = gameState;
   const tries = [];
   // preference order: straight, left, right (but jitter via aggression)
-  // compute possible directions
   const straight = bot.dir;
   const left = (bot.dir + 3) % 4;
   const right = (bot.dir + 1) % 4;
-  // order can be shuffled slightly based on aggression for variety
   const order = [straight, left, right];
   if(Math.random() < bot.aggression * 0.25){
-    // flip to make more jitter
     order.reverse();
   }
 
   for(const d of order){
     const nx = bot.x + DIRS[d].dx;
     const ny = bot.y + DIRS[d].dy;
-    // check immediate collision
     if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
-    // check the target cell: if it's empty or is occupied by someone about to leave? conservatively require empty
     if(grid[ny][nx] !== 0) continue;
-    // check two-step lookahead: ensure next cell after stepping won't be a dead-end (i.e., not immediately trapped by walls/trails)
     let safe = false;
     for(let dd=0; dd<4; dd++){
       const nnx = nx + DIRS[dd].dx;
@@ -382,21 +396,17 @@ function botChooseDir(bot, gameState){
       if(grid[nny][nnx] === 0) { safe = true; break; }
     }
     if(!safe) {
-      // if aggression high, they may accept dead-end occasionally
       if(bot.aggression < 0.6) continue;
     }
-    // also avoid user's immediate location (prefer steering away if user is adjacent)
     if(nx === user.x && ny === user.y) continue;
     return d;
   }
-  // if none found, try any direction that is not immediate collision
   for(let d=0; d<4; d++){
     const nx = bot.x + DIRS[d].dx, ny = bot.y + DIRS[d].dy;
     if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
     if(grid[ny][nx] !== 0) continue;
     return d;
   }
-  // no safe move -> return current dir (will die next step when collision is evaluated)
   return bot.dir;
 }
 
@@ -422,7 +432,6 @@ function stepTick(){
     const nd = DIRS[bot.dir];
     const nx = bot.x + nd.dx, ny = bot.y + nd.dy;
     if(nx < 0 || nx >= N || ny < 0 || ny >= N || grid[ny][nx] !== 0){
-      // collided -> die
       bot.alive = false;
       continue;
     } else {
@@ -430,7 +439,6 @@ function stepTick(){
       bot.x = nx; bot.y = ny;
       grid[bot.y][bot.x] = bot.id;
     }
-    // bot disc firing (simple probabilistic based on aggression)
     if(bot.willFire && !bot.disc && Math.random() < (0.012 + bot.aggression*0.01)){
       bot.disc = createDisc(bot.id, bot.x, bot.y, bot.dir);
     }
@@ -443,10 +451,8 @@ function stepTick(){
 
   for(const entry of allDiscs){
     const d = entry.disc;
-    // move (higher speed)
     d.x += d.vx * 0.6;
     d.y += d.vy * 0.6;
-    // wall bounces
     if(d.x <= 0.5){ d.x = 0.5; d.vx *= -1; }
     if(d.x >= N-0.5){ d.x = N-0.5; d.vx *= -1; }
     if(d.y <= 0.5){ d.y = 0.5; d.vy *= -1; }
@@ -455,15 +461,12 @@ function stepTick(){
     const cx = Math.floor(d.x), cy = Math.floor(d.y);
     if(cx < 0 || cx >= N || cy < 0 || cy >= N) continue;
 
-    // disc hitting a bike
     if(entry.owner !== user && user.alive && cx === user.x && cy === user.y){
-      // bot disc hit user -> bot's disc removed, user reload
       entry.owner.disc = null;
       user.discCount = Math.min(1, user.discCount + 1);
       continue;
     }
     if(entry.owner === user){
-      // user disc can hit bots
       for(const bot of bots){
         if(bot.alive && cx === bot.x && cy === bot.y){
           bot.alive = false;
@@ -471,7 +474,6 @@ function stepTick(){
         }
       }
       if(cx === user.x && cy === user.y){
-        // user caught their disc -> reload
         user.disc = null;
         user.discCount = Math.min(1, user.discCount + 1);
       }
@@ -488,7 +490,6 @@ function stepTick(){
     const ownerId = entry.owner.id;
     if(cell !== 0){
       if(cell !== ownerId && (cell === 'user' || typeof cell === 'string' && cell.startsWith('bot'))){
-        // hit bike of another -> eliminate appropriately
         if(cell === 'user'){
           entry.owner.disc = null;
           user.discCount = Math.min(1, user.discCount + 1);
@@ -498,7 +499,6 @@ function stepTick(){
           entry.owner.disc = null;
         }
       } else {
-        // bounce off the trail/wall by inverting velocity
         d.vx *= -1;
         d.vy *= -1;
       }
@@ -531,7 +531,6 @@ function gameLoopStep(now){
 function startGame(){
   if(!gameState) return;
   if(gameState.running) return;
-  // hide title visually
   document.getElementById('title').classList.add('title-hidden');
   gameState.running = true; gameState.tick = 0; gameState.startTime = performance.now(); lastTickTime = 0;
   animationId = requestAnimationFrame(gameLoopStep);
@@ -587,11 +586,9 @@ function endGame(result){
   pauseGame();
   gameState.finished = true; gameState.result = result; gameState.endTime = performance.now();
   const timeMs = Math.max(0, gameState.endTime - gameState.startTime);
-  // persist daily result
   const key = `gridle_result_${gameState.dateKey}`;
   localStorage.setItem(key, JSON.stringify({ result, timeMs, dateKey: gameState.dateKey, playedAt: Date.now() }));
   updateStreakOnResult(result, gameState.dateKey);
-  // show popup & toggle share if win
   showEndPopup(result, timeMs);
   toggleShareButton(result === 'win');
 }
@@ -631,14 +628,26 @@ discBtn.addEventListener('click', ()=>{
 
 // keyboard + WASD controls + space
 window.addEventListener('keydown', (e)=>{
-  if(!gameState || !gameState.user.alive) return;
+  if(!gameState) return;
+
+  // If not started, space will start the day's challenge (requested feature)
+  if(!gameState.running && e.code === 'Space'){
+    playBtn.click();
+    e.preventDefault();
+    return;
+  }
+
+  if(!gameState.user.alive) return;
+
   if(e.code === 'ArrowLeft' || e.code === 'KeyA') { gameState.user.dir = (gameState.user.dir + 3)%4; }
   if(e.code === 'ArrowRight' || e.code === 'KeyD') { gameState.user.dir = (gameState.user.dir + 1)%4; }
   if(e.code === 'Space') {
+    // when playing, Space still acts as the throw
     if(!gameState.user.disc && gameState.user.discCount > 0){
       gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
       gameState.user.discCount = 0;
     }
+    e.preventDefault();
   }
 });
 
@@ -660,7 +669,6 @@ window.addEventListener('touchend', (e)=>{
 function buildEmojiGrid(){
   if(!gameState) return '';
   const {N, grid} = gameState;
-  // downsample so width ~ 12 characters for share
   const target = 12;
   const step = Math.ceil(N / target);
   const black = '⬛', blue = '🟦', red = '🟥';
@@ -718,6 +726,8 @@ function boot(){
   } else {
     showStage('play');
   }
+  // ensure canvas has correct pixel size at start
+  resizeCanvas();
 }
 boot();
 
