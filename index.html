@@ -81,6 +81,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
 <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png"
 
 <!-- Manifest -->
 <link rel="manifest" href="manifest.json">
@@ -113,7 +114,7 @@
   .popup h2{ color:var(--neon-cyan); margin:0 0 8px 0; font-size:18px; letter-spacing:1px; }
   .popup p{ margin:0; color:#cfeaff; font-size:14px; }
 
-  .meta { margin-top:8px; color:#264; font-size:12px; opacity:0.6; text-align:center; width:100%; max-width:520px; }
+  .meta { margin-top:8px; color:#264; font-size:12px; opacity:1; text-align:center; width:100%; max-width:520px; }
   @media(min-width:900px){ .frame { width:520px; height:640px; } }
 
   /* hide title when playing */
@@ -321,7 +322,7 @@ for(let c=0;c<=N;c++){
     const cx = ox + d.x * tile + tile/2;
     const cy = oy + d.y * tile + tile/2;
     ctx.beginPath();
-ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*2); // bigger circle
+ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*4); // bigger circle
 ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
 ctx.fill();
   });
