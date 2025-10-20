@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Gridle</title>
+<title>GRIDLE</title>
 <link rel="manifest" href="/manifest.json">
 <style>
   :root{
@@ -15,7 +15,16 @@
     --font: 'Orbitron', system-ui, sans-serif;
   }
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
+.meta { 
+  margin-top:8px; 
+  color:#00f0ff; /* brighter neon cyan */ 
+  font-size:14px; 
+  font-weight:700; 
+  opacity:0.9; 
+  text-align:center; 
+  width:100%; 
+  max-width:520px; 
+}
   html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
   .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
 
@@ -269,7 +278,21 @@ function renderOnce(){
 
   ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
   ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
-
+// draw neon grid lines
+ctx.strokeStyle = 'rgba(0,240,255,0.2)'; // subtle cyan
+ctx.lineWidth = Math.max(1, tile*0.05);
+for(let r=0;r<=N;r++){
+  ctx.beginPath();
+  ctx.moveTo(ox, oy + r*tile);
+  ctx.lineTo(ox + N*tile, oy + r*tile);
+  ctx.stroke();
+}
+for(let c=0;c<=N;c++){
+  ctx.beginPath();
+  ctx.moveTo(ox + c*tile, oy);
+  ctx.lineTo(ox + c*tile, oy + N*tile);
+  ctx.stroke();
+}
   for(let r=0;r<N;r++){
     for(let c=0;c<N;c++){
       const val = grid[r][c];
@@ -297,8 +320,10 @@ function renderOnce(){
   discs.forEach(d=>{
     const cx = ox + d.x * tile + tile/2;
     const cy = oy + d.y * tile + tile/2;
-    ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, tile*0.16), 0, Math.PI*2);
-    ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)'; ctx.fill();
+    ctx.beginPath();
+ctx.arc(cx, cy, Math.max(4, tile*0.25), 0, Math.PI*2); // bigger circle
+ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
+ctx.fill();
   });
 }
 
