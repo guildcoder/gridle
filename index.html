@@ -693,7 +693,7 @@ shareBtn.addEventListener('click', ()=>{
   const rec = localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
   const timeMs = rec ? rec.timeMs : (gameState.endTime ? (gameState.endTime-gameState.startTime) : 0);
   const timeStr = formatTimeMs(timeMs);
-  const message = `I completed today's challenge of the grid in ${timeStr}. Try it now at guildcoder.github.io/girdle!\n\n` + buildEmojiGrid();
+  const message = `I completed today's challenge of the grid in ${timeStr}. Try it now at guildcoder.github.io/gridle!\n\n` + buildEmojiGrid();
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
   if(isMobile){
     window.location.href = `sms:?&body=${encodeURIComponent(message)}`;
