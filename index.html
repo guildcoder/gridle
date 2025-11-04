@@ -5,18 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>GRIDLE</title>
 
-  <!-- iOS Web App Settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Gridle">
 
-  <!-- Fallback icons for iOS -->
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
   <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
   <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
-
-  <!-- Manifest -->
   <link rel="manifest" href="/manifest.json">
 
   <style>
@@ -24,27 +20,14 @@
       --bg:#000;
       --neon-cyan:#00f0ff;
       --neon-red:#ff2b2b;
-      --neon-blue:#00aaff;
       --frame-pad:12px;
       --font: 'Orbitron', system-ui, sans-serif;
     }
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-    .meta {
-      margin-top:8px;
-      color:#00f0ff; /* brighter neon cyan */
-      font-size:14px;
-      font-weight:700;
-      opacity:0.9;
-      text-align:center;
-      width:100%;
-      max-width:520px;
-    }
-
-    html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font);}
+    html,body{height:100%;margin:0;background:var(--bg);color:#cfeaff;font-family:var(--font); -webkit-font-smoothing:antialiased;}
     .app{height:100vh;width:100vw;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:12px;box-sizing:border-box; -webkit-user-select:none; user-select:none;}
 
-    /* floating title */
     .title-wrap { position:relative; width:100%; display:flex; justify-content:center; pointer-events:none; margin-bottom:6px; }
     .title {
       font-family: 'Orbitron', monospace;
@@ -52,26 +35,14 @@
       letter-spacing:6px;
       font-size:32px;
       transform: translateY(0);
-      text-shadow:
-        0 0 8px rgba(0,240,255,0.75),
-        0 0 28px rgba(0,240,255,0.15);
-      opacity:1;
-      transition: transform .4s ease, opacity .35s ease;
-      font-style: italic;
+      text-shadow:0 0 8px rgba(0,240,255,0.75),0 0 28px rgba(0,240,255,0.15);
+      opacity:1; transition: transform .4s ease, opacity .35s ease; font-style: italic;
     }
     .title.small { font-size:20px; letter-spacing:3px; color:#88faff; opacity:0.9; }
 
-    /* little streak counter under title */
-    .streak {
-      margin-top:6px;
-      color:var(--neon-cyan);
-      font-size:12px;
-      opacity:0.9;
-      text-shadow: 0 0 8px rgba(0,240,255,0.12);
-      pointer-events:none;
-    }
+    .streak { margin-top:6px; color:var(--neon-cyan); font-size:12px; opacity:0.9; text-shadow: 0 0 8px rgba(0,240,255,0.12); pointer-events:none; }
 
-    /* neon frame for game */
+    /* frame sizing tightened to avoid auto-wide layouts */
     .frame {
       width:min(96vw,520px);
       height:calc(min(96vw,520px) * 1.2);
@@ -80,13 +51,12 @@
       border-radius:14px;
       position:relative;
       box-shadow:0 0 30px rgba(0,255,255,0.05);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex;align-items:center;justify-content:center;
       padding:var(--frame-pad);
       border:4px solid rgba(255,255,255,0.06);
       outline: 4px solid rgba(255,255,255,0.08);
       overflow:hidden;
+      touch-action: none; /* help prevent accidental page scrolling */
     }
 
     .frame::after{
@@ -98,7 +68,6 @@
       pointer-events:none;
     }
 
-    /* canvas: pixelated, strong border to emphasize grid */
     canvas.game {
       width:100%;
       height:100%;
@@ -107,7 +76,10 @@
       display:block;
       image-rendering: pixelated;
       box-sizing:border-box;
-      border:2px solid rgba(255,255,255,0.95); /* bright border around game area */
+      border:2px solid rgba(255,255,255,0.95);
+      -webkit-user-select:none;
+      user-select:none;
+      touch-action: none;
     }
 
     .controls { width:100%; max-width:520px; margin-top:10px; display:flex; justify-content:center; gap:12px; align-items:center; }
@@ -129,9 +101,13 @@
     .popup p{ margin:0; color:#cfeaff; font-size:14px; }
 
     .meta { margin-top:8px; color:#264; font-size:12px; opacity:1; text-align:center; width:100%; max-width:520px; }
-    @media(min-width:900px){ .frame { width:520px; height:640px; } }
 
-    /* hide title when playing */
+    /* in-canvas toasts (positioned in DOM, visually on canvas) */
+    .canvas-toast {
+      position:absolute; left:50%; top:10%; transform:translateX(-50%); padding:8px 14px; border-radius:10px; background:rgba(0,0,0,0.85); border:2px solid rgba(0,240,255,0.12); color:var(--neon-cyan); z-index:50; pointer-events:none; font-size:13px;
+    }
+
+    @media(min-width:900px){ .frame { width:520px; height:640px; } }
     .title-hidden { transform: translateY(-30px); opacity:0; pointer-events:none; }
 
   </style>
@@ -146,23 +122,29 @@
     </div>
 
     <div class="frame" id="game-frame">
-      <canvas id="game" class="game"></canvas>
+      <canvas id="game" class="game" aria-label="Gridle game canvas"></canvas>
 
       <div class="popup" id="endPopup" role="dialog" aria-live="polite">
         <h2 id="popupTitle">You did it!</h2>
         <p id="popupBody">Time: 00:00.000</p>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+          <button id="replayBtn" class="button">Play Again</button>
+          <button id="closePopupBtn" class="button">Close</button>
+        </div>
       </div>
+
+      <!-- small canvas toast / copy confirmations -->
+      <div id="canvasToast" class="canvas-toast" style="display:none;"></div>
     </div>
 
     <div class="controls" id="controls">
       <button id="playBtn" class="button">Play Today's Challenge</button>
-
+      <button id="bonusBtn" class="button">Bonus Round</button>
       <div id="inGameControls" class="touch-controls hidden" aria-hidden="true">
         <div id="turnLeft" class="control-rect left" role="button" aria-label="turn left"><div class="triangle"></div></div>
         <div id="discBtn" class="disc-button" role="button" aria-label="throw disc">●</div>
         <div id="turnRight" class="control-rect right" role="button" aria-label="turn right"><div class="triangle"></div></div>
       </div>
-
       <button id="shareBtn" class="button hidden">Share Today's Challenge</button>
     </div>
 
@@ -170,15 +152,9 @@
   </div>
 
 <script>
-/*
-  GRIDLE — Updated version
-  - Bright grid lines & border
-  - Space bar starts the game when not running (and still throws disc while playing)
-  - Apple icons include 512 size; head/tag cleanup
-  - Minor HTML/CSS validity fixes
-*/
+/* FULL RECODE: GRIDLE with 3-tries, bonus, clipboard share, in-canvas banners, fixes */
 
-//// Utilities
+/* ===== Utilities ===== */
 function mulberry32(a){ return function(){ var t = a += 0x6D2B79F5|0; t = Math.imul(t ^ t>>>15, t | 1); t ^= t + Math.imul(t ^ t>>>7, t | 61); return ((t ^ t>>>14) >>> 0) / 4294967296; } }
 
 function getCentralDateKey(now = new Date()){
@@ -196,13 +172,12 @@ function getCentralDateKey(now = new Date()){
     return c.toISOString().slice(0,10);
   }
 }
-
 function dateKeyToDate(dateKey){
   const [y,m,d] = dateKey.split('-').map(s=>parseInt(s,10));
   return new Date(Date.UTC(y, m-1, d));
 }
 
-//// Daily setup (deterministic)
+/* ===== Deterministic daily setup ===== */
 function dailySeedFromDateKey(dateKey){
   const parts = dateKey.split('-').map(s=>parseInt(s,10));
   const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -213,17 +188,17 @@ function dailySeedFromDateKey(dateKey){
   return (base * 2654435761) >>> 0;
 }
 
-function makeDailySetup(dateKey){
-  const seed = dailySeedFromDateKey(dateKey);
+function makeDailySetup(dateKey, opts = {}){
+  // opts override: forceGridSize, forceMaxBots
+  const seed = dailySeedFromDateKey(dateKey) ^ (opts.seedX || 0);
   const rng = mulberry32(seed);
-  // larger grids for longer matches
-  const sizes = [20,22,24,26,28,30];
-  const gridSize = sizes[Math.floor(rng()*sizes.length)];
+  const baseSizes = [20,22,24,26,28,30];
+  let gridSize = opts.forceGridSize || baseSizes[Math.floor(rng()*baseSizes.length)];
 
+  // bots: normally up to min(6, floor(grid/4)) but can be overridden for bonus
   const maxBots = Math.max(1, Math.floor(gridSize/4));
-  const botsCount = Math.floor(rng()*Math.min(6, maxBots)) + 1;
+  const botsCount = opts.forceMaxBots || (Math.floor(rng()*Math.min(6, maxBots)) + 1);
 
-  // longer max ticks to allow more playtime
   const maxTicks = gridSize * gridSize * 8;
 
   const bots = [];
@@ -236,9 +211,8 @@ function makeDailySetup(dateKey){
     if(edge===2){ y = margin; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 1; }
     if(edge===3){ y = gridSize-2; x = 1 + Math.floor(rng()*(gridSize-2)); dir = 3; }
 
-    // bot "aggression" influences chance to fire disk & randomness
-    const aggression = rng(); // 0..1
-    const willFire = rng() < 0.5;
+    const aggression = Math.min(0.98, Math.max(0.05, rng() * 0.95)); // limit extremes
+    const willFire = rng() < 0.45;
 
     bots.push({ id:`bot${b}`, x,y, dir, aggression, willFire, disc:null, alive:true });
   }
@@ -248,37 +222,66 @@ function makeDailySetup(dateKey){
   return { seed, gridSize, bots, userStart, maxTicks };
 }
 
-//// Game core
+/* ===== Canvas & rendering setup ===== */
 const canvas = document.getElementById('game');
+const frame = document.getElementById('game-frame');
 const ctx = canvas.getContext('2d', {alpha:false});
-function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); renderOnce(); }
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.floor(rect.width * devicePixelRatio);
+  canvas.height = Math.floor(rect.height * devicePixelRatio);
+  renderOnce();
+}
 window.addEventListener('resize', resizeCanvas);
 
+/* ===== Game state ===== */
 let gameState = null;
 let animationId = null;
 let lastTickTime = 0;
-const TICK_MS = 100; // faster tick for smoother movement (tune)
+
+// base tick (ms) — tuned a touch slower than original to calm bot speed
+let BASE_TICK_MS = 120;
+let currentTickMs = BASE_TICK_MS;
 
 const DIRS = [ {dx:1,dy:0}, {dx:0,dy:1}, {dx:-1,dy:0}, {dx:0,dy:-1} ];
 
-function initGameForDateKey(dateKey){
-  const setup = makeDailySetup(dateKey);
+/* ===== Tries & bonus tracking ===== */
+let triesUsed = 0;
+const MAX_TRIES = 3;
+let bonusUnlocked = false;
+let currentlyInBonus = false;
+
+/* ===== Init/Reset functions ===== */
+function initGameForDateKey(dateKey, opts = {}){
+  // opts may include: easierFactor (0..1), forceGridSize, forceMaxBots, isBonus
+  const setup = makeDailySetup(dateKey, { forceGridSize: opts.forceGridSize, forceMaxBots: opts.forceMaxBots, seedX: opts.seedX });
   const N = setup.gridSize;
   const grid = Array.from({length:N}, ()=>Array(N).fill(0));
 
   const user = { id:'user', x: setup.userStart.x, y: setup.userStart.y, dir: setup.userStart.dir, color:'cyan', alive:true, discCount:1, disc:null, trail:'user' };
   grid[user.y][user.x] = 'user';
 
-  const bots = setup.bots.map(b=>({ id:b.id, x:b.x, y:b.y, dir:b.dir, aggression:b.aggression, willFire:b.willFire, disc:null, alive:true, trail:b.id }));
+  const bots = setup.bots.map(b=>{
+    // apply easierFactor to aggression (makes bots calmer on retries)
+    const ag = typeof opts.easierFactor === 'number' ? b.aggression * (1 - opts.easierFactor) : b.aggression;
+    const wf = (typeof opts.easierFactor === 'number') ? (b.willFire && Math.random() > opts.easierFactor*0.45) : b.willFire;
+    return { id:b.id, x:b.x, y:b.y, dir:b.dir, aggression:Math.max(0.05,ag), willFire:wf, disc:null, alive:true, trail:b.id };
+  });
   bots.forEach(b=> grid[b.y][b.x] = b.id);
 
-  gameState = { dateKey, setup, grid, N, user, bots, running:false, tick:0, startTime:0, endTime:0, finished:false, result:'' };
+  gameState = { dateKey, setup, grid, N, user, bots, running:false, tick:0, startTime:0, endTime:0, finished:false, result:'', triesUsed, isBonus: !!opts.isBonus || false };
+  currentlyInBonus = !!opts.isBonus || false;
+
+  // small tweak: reduce tick speed slightly when easier
+  currentTickMs = BASE_TICK_MS * (opts.isBonus ? 1.4 : (1 + (opts.easierFactor||0) * 0.6));
+
   resizeCanvas();
   renderOnce();
   updateStreakDisplay();
+  drawSmallCanvasBadges();
 }
 
-/* rendering */
+/* ===== Rendering ===== */
 function renderOnce(){
   if(!gameState) return;
   const {N, grid, user} = gameState;
@@ -289,31 +292,33 @@ function renderOnce(){
   const viewW = tile * N, viewH = tile * N;
   const ox = Math.floor((w - viewW)/2), oy = Math.floor((h - viewH)/2);
 
+  // background
   ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
   ctx.fillStyle = '#030303'; ctx.fillRect(ox, oy, viewW, viewH);
 
-  // bright white grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.95)'; // bright white
-  // smaller line width for crispness regardless of tile size
+  // crisp grid lines & border (fixes previous line artifacts)
+  ctx.save();
+  ctx.translate(0.5,0.5);
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
   ctx.lineWidth = Math.max(1, Math.round(devicePixelRatio));
   for(let r=0;r<=N;r++){
     ctx.beginPath();
-    ctx.moveTo(ox + 0.5, oy + r*tile + 0.5);
-    ctx.lineTo(ox + N*tile + 0.5, oy + r*tile + 0.5);
+    ctx.moveTo((ox - 0.5) + 0, (oy - 0.5) + r*tile);
+    ctx.lineTo((ox - 0.5) + N*tile, (oy - 0.5) + r*tile);
     ctx.stroke();
   }
   for(let c=0;c<=N;c++){
     ctx.beginPath();
-    ctx.moveTo(ox + c*tile + 0.5, oy + 0.5);
-    ctx.lineTo(ox + c*tile + 0.5, oy + N*tile + 0.5);
+    ctx.moveTo((ox - 0.5) + c*tile, (oy - 0.5) + 0);
+    ctx.lineTo((ox - 0.5) + c*tile, (oy - 0.5) + N*tile);
     ctx.stroke();
   }
-
-  // draw a strong white border around the grid area
   ctx.lineWidth = Math.max(2, Math.round(devicePixelRatio*1.2));
   ctx.strokeStyle = 'rgba(255,255,255,0.95)';
-  ctx.strokeRect(ox + 0.5, oy + 0.5, viewW, viewH);
+  ctx.strokeRect(ox, oy, viewW, viewH);
+  ctx.restore();
 
+  // cells
   for(let r=0;r<N;r++){
     for(let c=0;c<N;c++){
       const val = grid[r][c];
@@ -326,15 +331,16 @@ function renderOnce(){
     }
   }
 
+  // draw bikes
   function drawBike(x,y,color){
     const px = ox + x*tile, py = oy + y*tile;
     ctx.fillStyle = color; ctx.fillRect(px+tile*0.15, py+tile*0.15, tile*0.7, tile*0.7);
     ctx.fillStyle = '#fff'; ctx.fillRect(px+tile*0.42, py+tile*0.08, tile*0.16, tile*0.16);
   }
-
   if(gameState.user.alive) drawBike(gameState.user.x, gameState.user.y, 'rgba(0,240,255,1)');
   gameState.bots.forEach(b=>{ if(b.alive) drawBike(b.x, b.y, 'rgba(255,43,43,1)'); });
 
+  // discs
   const discs = [];
   if(gameState.user.disc) discs.push(gameState.user.disc);
   gameState.bots.forEach(b=>{ if(b.disc) discs.push(b.disc); });
@@ -346,42 +352,70 @@ function renderOnce(){
     ctx.fillStyle = d.owner === 'user' ? 'rgba(0,240,255,1)' : 'rgba(255,43,43,1)';
     ctx.fill();
   });
+
+  // in-canvas small overlay: Try count (top-left) and Bonus badge (top-right)
+  drawSmallCanvasBadges();
 }
 
-/* movement utils */
+/* small helper to draw tiny canvas badges (keeps consistent across renders) */
+function drawSmallCanvasBadges(){
+  if(!gameState) return;
+  const w = canvas.width, h = canvas.height;
+  const ctxLocal = ctx;
+  const smallPad = Math.round(8 * devicePixelRatio);
+  ctxLocal.save();
+  ctxLocal.font = `${Math.max(10, 12 * devicePixelRatio)}px Orbitron, sans-serif`;
+  ctxLocal.textBaseline = 'top';
+
+  // Try counter top-left
+  const tryText = `Try ${Math.min(triesUsed || 0, MAX_TRIES)} / ${MAX_TRIES}`;
+  ctxLocal.fillStyle = 'rgba(0,0,0,0.6)';
+  const tw = ctxLocal.measureText(tryText).width;
+  ctxLocal.fillRect(smallPad, smallPad, tw + 12*devicePixelRatio, 20*devicePixelRatio);
+  ctxLocal.fillStyle = 'rgba(0,240,255,0.95)';
+  ctxLocal.fillText(tryText, smallPad + 6*devicePixelRatio, smallPad + 2*devicePixelRatio);
+
+  // Bonus badge top-right
+  if(gameState.isBonus || bonusUnlocked){
+    const badge = gameState.isBonus ? 'BONUS' : (bonusUnlocked ? 'BONUS ✓' : '');
+    const bw = ctxLocal.measureText(badge).width;
+    ctxLocal.fillStyle = 'rgba(0,0,0,0.6)';
+    ctxLocal.fillRect(w - bw - 12*devicePixelRatio - smallPad, smallPad, bw + 12*devicePixelRatio, 20*devicePixelRatio);
+    ctxLocal.fillStyle = 'rgba(255,200,40,0.98)';
+    ctxLocal.fillText(badge, w - bw - 6*devicePixelRatio - smallPad, smallPad + 2*devicePixelRatio);
+  }
+
+  ctxLocal.restore();
+}
+
+/* ===== Movement / Discs / Bot AI ===== */
 function turnDir(dir, cmd){ if(cmd===-1) return (dir+3)%4; if(cmd===1) return (dir+1)%4; return dir; }
 
 function createDisc(ownerId, startX, startY, dir){
-  // spawn one cell ahead if possible
   const dx = DIRS[dir].dx, dy = DIRS[dir].dy;
   const spawnX = startX + dx;
   const spawnY = startY + dy;
-  const vx = dx * 1.6; // speed multiplier (tune)
+  const vx = dx * 1.6;
   const vy = dy * 1.6;
-  // Keep fractional position centered on cells
   const baseX = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnX + 0.0 : startX + 0.5;
   const baseY = (spawnX >= 0 && spawnX < gameState.N && spawnY >=0 && spawnY < gameState.N) ? spawnY + 0.0 : startY + 0.5;
   return { owner: ownerId, x: baseX + 0.5, y: baseY + 0.5, vx, vy };
 }
 
-/* check cell occupancy helper */
 function cellOccupied(grid, x, y){
   if(x < 0 || x >= grid[0].length || y < 0 || y >= grid.length) return true;
   return grid[y][x] !== 0;
 }
 
-/* Bot decision: avoid own trail, user's trail, and walls via 1-tile lookahead */
-function botChooseDir(bot, gameState){
-  const {grid, N, user} = gameState;
-  const tries = [];
-  // preference order: straight, left, right (but jitter via aggression)
+/* Bot AI (unchanged conceptually, but tuned) */
+function botChooseDir(bot, gs){
+  const {grid, N, user} = gs;
   const straight = bot.dir;
   const left = (bot.dir + 3) % 4;
   const right = (bot.dir + 1) % 4;
   const order = [straight, left, right];
-  if(Math.random() < bot.aggression * 0.25){
-    order.reverse();
-  }
+
+  if(Math.random() < bot.aggression * 0.18) order.reverse();
 
   for(const d of order){
     const nx = bot.x + DIRS[d].dx;
@@ -390,14 +424,11 @@ function botChooseDir(bot, gameState){
     if(grid[ny][nx] !== 0) continue;
     let safe = false;
     for(let dd=0; dd<4; dd++){
-      const nnx = nx + DIRS[dd].dx;
-      const nny = ny + DIRS[dd].dy;
+      const nnx = nx + DIRS[dd].dx; const nny = ny + DIRS[dd].dy;
       if(nnx < 0 || nnx >= N || nny < 0 || nny >= N) continue;
       if(grid[nny][nnx] === 0) { safe = true; break; }
     }
-    if(!safe) {
-      if(bot.aggression < 0.6) continue;
-    }
+    if(!safe && bot.aggression < 0.65) continue;
     if(nx === user.x && ny === user.y) continue;
     return d;
   }
@@ -410,7 +441,7 @@ function botChooseDir(bot, gameState){
   return bot.dir;
 }
 
-/* Step Tick */
+/* ===== Tick / Step logic ===== */
 function stepTick(){
   if(!gameState || gameState.finished) return;
   const {N, grid, user, bots, setup} = gameState;
@@ -439,12 +470,12 @@ function stepTick(){
       bot.x = nx; bot.y = ny;
       grid[bot.y][bot.x] = bot.id;
     }
-    if(bot.willFire && !bot.disc && Math.random() < (0.012 + bot.aggression*0.01)){
+    if(bot.willFire && !bot.disc && Math.random() < (0.010 + bot.aggression*0.009)){
       bot.disc = createDisc(bot.id, bot.x, bot.y, bot.dir);
     }
   }
 
-  // Move discs (user + bots)
+  // Move discs
   const allDiscs = [];
   if(user.disc) allDiscs.push({disc:user.disc, owner:user});
   bots.forEach(b=>{ if(b.disc) allDiscs.push({disc:b.disc, owner:b}); });
@@ -515,14 +546,15 @@ function stepTick(){
   if(aliveBots.length === 0){ endGame('win'); return; }
 
   gameState.tick++;
-  if(gameState.tick > setup.maxTicks){ endGame('lose'); return; }
+  if(gameState.tick > gameState.setup.maxTicks){ endGame('lose'); return; }
 }
 
+/* ===== Main game loop ===== */
 function gameLoopStep(now){
   if(!gameState || !gameState.running) return;
   if(!lastTickTime) lastTickTime = now;
   const dt = now - lastTickTime;
-  if(dt >= TICK_MS){
+  if(dt >= currentTickMs){
     stepTick(); renderOnce(); lastTickTime = now;
   }
   animationId = requestAnimationFrame(gameLoopStep);
@@ -531,14 +563,19 @@ function gameLoopStep(now){
 function startGame(){
   if(!gameState) return;
   if(gameState.running) return;
+  // lock scroll / interactions
   document.getElementById('title').classList.add('title-hidden');
+  lockPageScroll(true);
   gameState.running = true; gameState.tick = 0; gameState.startTime = performance.now(); lastTickTime = 0;
   animationId = requestAnimationFrame(gameLoopStep);
+  document.getElementById('inGameControls').classList.remove('hidden');
+  document.getElementById('playBtn').classList.add('hidden');
+  document.getElementById('bonusBtn').classList.add('hidden');
 }
 
-function pauseGame(){ if(animationId) cancelAnimationFrame(animationId); animationId = null; gameState.running = false; }
+function pauseGame(){ if(animationId) cancelAnimationFrame(animationId); animationId = null; gameState.running = false; lockPageScroll(false); }
 
-//// Streak storage
+/* ===== Streak persistence ===== */
 function loadStreak(){
   const raw = localStorage.getItem('gridle_streak');
   return raw ? JSON.parse(raw) : { lastDate: null, streak: 0, lastResult: null };
@@ -569,17 +606,28 @@ function updateStreakDisplay(){
   document.getElementById('streakDisplay').textContent = `🔥 Streak: ${s.streak}`;
 }
 
-/* end game */
+/* ===== End game handling & tries ===== */
 const endPopup = document.getElementById('endPopup');
 const popupTitle = document.getElementById('popupTitle');
 const popupBody = document.getElementById('popupBody');
+const replayBtn = document.getElementById('replayBtn');
+const closePopupBtn = document.getElementById('closePopupBtn');
 
 function showEndPopup(result, timeMs){
-  if(result === 'win'){ popupTitle.textContent = "You won today's Grid!"; popupBody.textContent = `Time: ${formatTimeMs(timeMs)}`; }
-  else { popupTitle.textContent = "You lost the grid"; popupBody.textContent = `Better luck tomorrow.`; }
+  const rankText = rankFromResult();
+  if(result === 'win'){
+    popupTitle.textContent = `You won! — ${rankText.title}`;
+    popupBody.textContent = `Time: ${formatTimeMs(timeMs)} — ${rankText.note}`;
+  } else {
+    popupTitle.textContent = "You lost the grid";
+    popupBody.textContent = `Better luck tomorrow.`;
+  }
   endPopup.classList.add('show');
   document.getElementById('inGameControls').classList.add('hidden');
+  document.getElementById('shareBtn').classList.toggle('hidden', result !== 'win');
   document.getElementById('playBtn').classList.add('hidden');
+  document.getElementById('bonusBtn').classList.toggle('hidden', !bonusUnlocked);
+  lockPageScroll(false);
 }
 
 function endGame(result){
@@ -587,89 +635,60 @@ function endGame(result){
   gameState.finished = true; gameState.result = result; gameState.endTime = performance.now();
   const timeMs = Math.max(0, gameState.endTime - gameState.startTime);
   const key = `gridle_result_${gameState.dateKey}`;
-  localStorage.setItem(key, JSON.stringify({ result, timeMs, dateKey: gameState.dateKey, playedAt: Date.now() }));
+  localStorage.setItem(key, JSON.stringify({ result, timeMs, dateKey: gameState.dateKey, playedAt: Date.now(), tries: triesUsed }));
   updateStreakOnResult(result, gameState.dateKey);
   showEndPopup(result, timeMs);
-  toggleShareButton(result === 'win');
+
+  // handle tries progression & bonus unlocking
+  if(result === 'win'){
+    // if first try win and not yet claimed, unlock bonus
+    if(triesUsed === 1 && !bonusUnlocked){
+      bonusUnlocked = true;
+      showCanvasToast('Bonus unlocked! Press Bonus Round to play.');
+    }
+  } else { // lose
+    if(triesUsed < MAX_TRIES){
+      // automatically allow immediate replay with easier settings
+      setTimeout(()=>{
+        showCanvasConfirm(`You lost — Try ${triesUsed+1} of ${MAX_TRIES}?`, ()=>{
+          startReplayTry();
+        });
+      }, 250);
+    } else {
+      showCanvasToast('No tries left for today.');
+    }
+  }
 }
 
-/* Controls & UI wiring */
-const playBtn = document.getElementById('playBtn');
-const inGameControls = document.getElementById('inGameControls');
-const turnLeft = document.getElementById('turnLeft');
-const turnRight = document.getElementById('turnRight');
-const discBtn = document.getElementById('discBtn');
-const shareBtn = document.getElementById('shareBtn');
+/* ===== Retry flow ===== */
+function startReplayTry(){
+  if(triesUsed >= MAX_TRIES) { showCanvasToast('No tries left.'); return; }
+  triesUsed++;
+  // easierFactor is proportional to triesUsed (higher -> easier)
+  const easierFactor = Math.min(0.8, (triesUsed - 1) * 0.33);
+  initGameForDateKey(getCentralDateKey(new Date()), { easierFactor });
+  startGame();
+}
 
-function showStage(stage){ playBtn.classList.toggle('hidden', stage !== 'play'); inGameControls.classList.toggle('hidden', stage !== 'controls'); shareBtn.classList.toggle('hidden', stage !== 'share'); }
-function toggleShareButton(show){ if(show) showStage('share'); else showStage('play'); }
+/* ===== Bonus round start ===== */
+function startBonusRound(){
+  if(!bonusUnlocked && !confirm('Bonus round is unlocked only if you win on first try. Start anyway?')) return;
+  triesUsed = 0; // separate session for bonus
+  const dateKey = getCentralDateKey(new Date());
+  // enlarge grid significantly for bonus: 1.5x to 1.6x, capped at 40
+  const baseSetup = makeDailySetup(dateKey);
+  const forcedSize = Math.min(40, Math.max(30, Math.round(baseSetup.gridSize * 1.6)));
+  // force many bots (max ~ floor(size/3))
+  const forceBots = Math.max(4, Math.floor(forcedSize / 3));
+  initGameForDateKey(dateKey, { forceGridSize: forcedSize, forceMaxBots: forceBots, isBonus:true, seedX: 987654321 });
+  startGame();
+}
 
-playBtn.addEventListener('click', ()=>{
-  const key = `gridle_result_${gameState.dateKey}`;
-  if(localStorage.getItem(key)){
-    const rec = JSON.parse(localStorage.getItem(key));
-    showEndPopup(rec.result, rec.timeMs);
-    toggleShareButton(rec.result === 'win');
-    return;
-  }
-  startGame(); showStage('controls');
-});
-
-// on-screen touch controls
-turnLeft.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 3)%4; });
-turnRight.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 1)%4; });
-
-discBtn.addEventListener('click', ()=>{
-  if(!gameState || !gameState.user.alive) return;
-  if(gameState.user.disc || gameState.user.discCount <= 0) return;
-  gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
-  gameState.user.discCount = 0;
-});
-
-// keyboard + WASD controls + space
-window.addEventListener('keydown', (e)=>{
-  if(!gameState) return;
-
-  // If not started, space will start the day's challenge (requested feature)
-  if(!gameState.running && e.code === 'Space'){
-    playBtn.click();
-    e.preventDefault();
-    return;
-  }
-
-  if(!gameState.user.alive) return;
-
-  if(e.code === 'ArrowLeft' || e.code === 'KeyA') { gameState.user.dir = (gameState.user.dir + 3)%4; }
-  if(e.code === 'ArrowRight' || e.code === 'KeyD') { gameState.user.dir = (gameState.user.dir + 1)%4; }
-  if(e.code === 'Space') {
-    // when playing, Space still acts as the throw
-    if(!gameState.user.disc && gameState.user.discCount > 0){
-      gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
-      gameState.user.discCount = 0;
-    }
-    e.preventDefault();
-  }
-});
-
-// swipe controls for mobile (basic)
-let touchStartX = 0, touchStartY = 0;
-window.addEventListener('touchstart', (e)=>{ const t = e.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; });
-window.addEventListener('touchend', (e)=>{
-  const t = e.changedTouches[0];
-  const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
-  if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
-  if(Math.abs(dx) > Math.abs(dy)){
-    if(dx > 0) gameState.user.dir = 0; else gameState.user.dir = 2;
-  } else {
-    if(dy > 0) gameState.user.dir = 1; else gameState.user.dir = 3;
-  }
-});
-
-/* Share: simplified emoji grid downsampled */
-function buildEmojiGrid(){
+/* ===== Share / Build Clipboard Message with emoji rank ===== */
+function buildEmojiGridForShare(){
   if(!gameState) return '';
   const {N, grid} = gameState;
-  const target = 12;
+  const target = 14;
   const step = Math.ceil(N / target);
   const black = '⬛', blue = '🟦', red = '🟥';
   const lines = [];
@@ -687,23 +706,147 @@ function buildEmojiGrid(){
   return lines.join('\n');
 }
 
-shareBtn.addEventListener('click', ()=>{
-  if(!gameState) return;
+function rankFromResult(){
+  // determine textual rank/emoji based on triesUsed & bonus
+  if(gameState.isBonus && gameState.result === 'win') return { title:'Legend — Bonus Champion', note: 'You won the bonus!', emoji: '🏆🌌' };
+  if(triesUsed === 1 && gameState.result === 'win') return { title:'Elite — One-try Victory', note: 'Incredible!', emoji: '🔥⭐' };
+  if(triesUsed === 2 && gameState.result === 'win') return { title:'Great — Two-try Victory', note: "Well played!", emoji: '⚡️' };
+  if(triesUsed === 3 && gameState.result === 'win') return { title:'Solid — Three-try Victory', note: "You did it!", emoji: '✅' };
+  return { title:'Play' , note:'', emoji: ''};
+}
+
+async function copyShareToClipboard(){
+  if(!gameState) return showCanvasToast('No result to share');
   const key = `gridle_result_${gameState.dateKey}`;
   const rec = localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
   const timeMs = rec ? rec.timeMs : (gameState.endTime ? (gameState.endTime-gameState.startTime) : 0);
   const timeStr = formatTimeMs(timeMs);
-  const message = `I completed today's challenge of the grid in ${timeStr}. Try it now at guildcoder.github.io/gridle!\n\n` + buildEmojiGrid();
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-  if(isMobile){
-    window.location.href = `sms:?&body=${encodeURIComponent(message)}`;
-  } else {
-    const subject = encodeURIComponent("I completed today's Gridle!");
-    window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
+  const rank = rankFromResult();
+  const header = `${rank.emoji} GRIDLE — ${rank.title}\n${timeStr} — ${gameState.setup.gridSize}x${gameState.setup.gridSize}\nTries: ${triesUsed}${gameState.isBonus ? ' (Bonus)' : ''}\n\n`;
+  const gridText = buildEmojiGridForShare();
+  const message = header + gridText + `\n\nTry it at guildcoder.github.io/gridle`;
+  try {
+    await navigator.clipboard.writeText(message);
+    showCanvasToast('Copied summary to clipboard!');
+  } catch (err) {
+    console.error('Clipboard write failed', err);
+    showCanvasToast('Copy failed');
+  }
+}
+
+/* ===== UI elements & event wiring ===== */
+const playBtn = document.getElementById('playBtn');
+const bonusBtn = document.getElementById('bonusBtn');
+const inGameControls = document.getElementById('inGameControls');
+const turnLeft = document.getElementById('turnLeft');
+const turnRight = document.getElementById('turnRight');
+const discBtn = document.getElementById('discBtn');
+const shareBtn = document.getElementById('shareBtn');
+
+function showStage(stage){ playBtn.classList.toggle('hidden', stage !== 'play'); inGameControls.classList.toggle('hidden', stage !== 'controls'); shareBtn.classList.toggle('hidden', stage !== 'share'); bonusBtn.classList.toggle('hidden', stage !== 'bonus'); }
+function toggleShareButton(show){ if(show) showStage('share'); else showStage('play'); }
+
+playBtn.addEventListener('click', ()=>{
+  const key = `gridle_result_${getCentralDateKey(new Date())}`;
+  if(localStorage.getItem(key)){
+    const rec = JSON.parse(localStorage.getItem(key));
+    // show existing result
+    initGameForDateKey(getCentralDateKey(new Date())); // show today's grid
+    gameState.finished = true; gameState.result = rec.result; gameState.endTime = performance.now(); triesUsed = rec.tries || 0;
+    showEndPopup(rec.result, rec.timeMs);
+    toggleShareButton(rec.result === 'win');
+    return;
+  }
+  // start first try
+  triesUsed = 1;
+  initGameForDateKey(getCentralDateKey(new Date()), { easierFactor: 0 });
+  startGame();
+});
+
+bonusBtn.addEventListener('click', ()=> {
+  startBonusRound();
+});
+
+turnLeft.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 3)%4; });
+turnRight.addEventListener('pointerdown', ()=>{ if(gameState && gameState.user.alive) gameState.user.dir = (gameState.user.dir + 1)%4; });
+
+discBtn.addEventListener('click', ()=>{
+  if(!gameState || !gameState.user.alive) return;
+  if(gameState.user.disc || gameState.user.discCount <= 0) return;
+  gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
+  gameState.user.discCount = 0;
+});
+
+window.addEventListener('keydown', (e)=>{
+  if(!gameState) return;
+
+  if(!gameState.running && e.code === 'Space'){
+    playBtn.click();
+    e.preventDefault();
+    return;
+  }
+
+  if(!gameState.user.alive) return;
+
+  if(e.code === 'ArrowLeft' || e.code === 'KeyA') { gameState.user.dir = (gameState.user.dir + 3)%4; }
+  if(e.code === 'ArrowRight' || e.code === 'KeyD') { gameState.user.dir = (gameState.user.dir + 1)%4; }
+  if(e.code === 'Space') {
+    if(!gameState.user.disc && gameState.user.discCount > 0){
+      gameState.user.disc = createDisc('user', gameState.user.x, gameState.user.y, gameState.user.dir);
+      gameState.user.discCount = 0;
+    }
+    e.preventDefault();
   }
 });
 
-/* format time */
+/* swipe controls for mobile (kept simple & won't scroll because of touch-action none) */
+let touchStartX = 0, touchStartY = 0;
+window.addEventListener('touchstart', (e)=>{ const t = e.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; });
+window.addEventListener('touchend', (e)=>{
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
+  if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+  if(Math.abs(dx) > Math.abs(dy)){ if(dx > 0) gameState.user.dir = 0; else gameState.user.dir = 2; }
+  else { if(dy > 0) gameState.user.dir = 1; else gameState.user.dir = 3; }
+});
+
+/* Share button now copies to clipboard using rank-specific emoji */
+shareBtn.addEventListener('click', async ()=>{
+  await copyShareToClipboard();
+});
+
+/* replay / close popup */
+replayBtn.addEventListener('click', ()=>{
+  endPopup.classList.remove('show');
+  // allow next try if available
+  if(triesUsed < MAX_TRIES && gameState.result !== 'win'){
+    startReplayTry();
+  } else {
+    // restart same day fresh (resets tries if user explicitly restarts)
+    triesUsed = 1;
+    initGameForDateKey(getCentralDateKey(new Date()), { easierFactor: 0 });
+    startGame();
+  }
+});
+closePopupBtn.addEventListener('click', ()=>{ endPopup.classList.remove('show'); });
+
+/* ===== Helpers: toast & confirm overlays inside frame ===== */
+const canvasToast = document.getElementById('canvasToast');
+let toastTimeout = null;
+function showCanvasToast(msg, ms = 1200){
+  canvasToast.textContent = msg;
+  canvasToast.style.display = 'block';
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>{ canvasToast.style.display = 'none'; }, ms);
+}
+
+function showCanvasConfirm(msg, yesCb){
+  // small in-canvas confirm using window.confirm as fallback for simplicity
+  const ok = window.confirm(msg);
+  if(ok && typeof yesCb === 'function') yesCb();
+}
+
+/* ===== Misc utilities ===== */
 function formatTimeMs(ms){
   const s = Math.floor(ms/1000);
   const mm = Math.floor(s/60);
@@ -712,27 +855,47 @@ function formatTimeMs(ms){
   return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}.${String(mss).padStart(3,'0')}`;
 }
 
-/* Boot + remember-me play restriction + show streak on load */
+/* ===== Scroll lock during gameplay ===== */
+function lockPageScroll(lock){
+  if(lock){
+    document.body.style.overflow = 'hidden';
+    // also block wheel and touchmove
+    window.addEventListener('wheel', preventDefaultWheel, {passive:false});
+    window.addEventListener('touchmove', preventDefaultWheel, {passive:false});
+  } else {
+    document.body.style.overflow = '';
+    window.removeEventListener('wheel', preventDefaultWheel);
+    window.removeEventListener('touchmove', preventDefaultWheel);
+  }
+}
+function preventDefaultWheel(e){ e.preventDefault(); }
+
+/* ===== Boot logic ===== */
 function boot(){
   const dateKey = getCentralDateKey(new Date());
-  initGameForDateKey(dateKey);
-
+  // If already have result saved, show popup and share button accordingly
   const key = `gridle_result_${dateKey}`;
   const rec = localStorage.getItem(key);
   if(rec){
     const r = JSON.parse(rec);
+    triesUsed = r.tries || 0;
+    initGameForDateKey(dateKey);
+    gameState.finished = true; gameState.result = r.result; gameState.endTime = performance.now();
     showEndPopup(r.result, r.timeMs);
     toggleShareButton(r.result === 'win');
   } else {
+    initGameForDateKey(dateKey);
     showStage('play');
   }
-  // ensure canvas has correct pixel size at start
+  // set initial canvas size & rendering
   resizeCanvas();
+  // attach debug handle
+  window._gridle = { makeDailySetup, initGameForDateKey, gameState, getCentralDateKey, boot };
 }
 boot();
 
-/* expose for debugging */
-window._gridle = { makeDailySetup, initGameForDateKey, gameState, getCentralDateKey, boot };
+/* ===== Expose simple controls for dev/debug (optional) ===== */
+window.addEventListener('blur', ()=>{ /* pause when tab not focused to preserve timing */ });
 
 </script>
 </body>
